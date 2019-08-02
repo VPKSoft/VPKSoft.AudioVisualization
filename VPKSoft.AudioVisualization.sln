@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29123.88
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPKSoft.AudioVisualization", "VPKSoft.AudioVisualization\VPKSoft.AudioVisualization.csproj", "{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{43ADBAB3-2601-446E-A211-E5C9B4DDF878}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43ADBAB3-2601-446E-A211-E5C9B4DDF878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43ADBAB3-2601-446E-A211-E5C9B4DDF878}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43ADBAB3-2601-446E-A211-E5C9B4DDF878}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43ADBAB3-2601-446E-A211-E5C9B4DDF878}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {80342A56-F14D-435C-8CA5-0D13B1D3805E}
+	EndGlobalSection
+EndGlobal
