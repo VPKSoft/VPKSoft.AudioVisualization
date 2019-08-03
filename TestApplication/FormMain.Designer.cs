@@ -32,10 +32,15 @@
             this.btStartStopLine = new System.Windows.Forms.Button();
             this.cbCombineChannels = new System.Windows.Forms.CheckBox();
             this.btStartStopBars = new System.Windows.Forms.Button();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpGraphs = new System.Windows.Forms.TableLayoutPanel();
+            this.gbGrapsh = new System.Windows.Forms.GroupBox();
+            this.rbBars = new System.Windows.Forms.RadioButton();
+            this.rbCurve = new System.Windows.Forms.RadioButton();
+            this.rbBoth = new System.Windows.Forms.RadioButton();
             this.audioVisualizationPlot1 = new VPKSoft.AudioVisualization.AudioVisualizationPlot();
             this.audioVisualizationBars1 = new VPKSoft.AudioVisualization.AudioVisualizationBars();
-            this.tableLayoutPanel1.SuspendLayout();
+            this.tlpGraphs.SuspendLayout();
+            this.gbGrapsh.SuspendLayout();
             this.SuspendLayout();
             // 
             // btStartStopLine
@@ -72,23 +77,70 @@
             this.btStartStopBars.UseVisualStyleBackColor = true;
             this.btStartStopBars.Click += new System.EventHandler(this.BtStartStopBars_Click);
             // 
-            // tableLayoutPanel1
+            // tlpGraphs
             // 
-            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.tlpGraphs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Controls.Add(this.audioVisualizationPlot1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.audioVisualizationBars1, 0, 1);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(776, 454);
-            this.tableLayoutPanel1.TabIndex = 6;
+            this.tlpGraphs.ColumnCount = 1;
+            this.tlpGraphs.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpGraphs.Controls.Add(this.audioVisualizationPlot1, 0, 0);
+            this.tlpGraphs.Controls.Add(this.audioVisualizationBars1, 0, 1);
+            this.tlpGraphs.Location = new System.Drawing.Point(12, 12);
+            this.tlpGraphs.Name = "tlpGraphs";
+            this.tlpGraphs.RowCount = 2;
+            this.tlpGraphs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpGraphs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpGraphs.Size = new System.Drawing.Size(776, 441);
+            this.tlpGraphs.TabIndex = 6;
+            // 
+            // gbGrapsh
+            // 
+            this.gbGrapsh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.gbGrapsh.Controls.Add(this.rbBars);
+            this.gbGrapsh.Controls.Add(this.rbCurve);
+            this.gbGrapsh.Controls.Add(this.rbBoth);
+            this.gbGrapsh.Location = new System.Drawing.Point(403, 456);
+            this.gbGrapsh.Name = "gbGrapsh";
+            this.gbGrapsh.Size = new System.Drawing.Size(382, 39);
+            this.gbGrapsh.TabIndex = 7;
+            this.gbGrapsh.TabStop = false;
+            this.gbGrapsh.Text = "Grapsh";
+            // 
+            // rbBars
+            // 
+            this.rbBars.AutoSize = true;
+            this.rbBars.Location = new System.Drawing.Point(278, 16);
+            this.rbBars.Name = "rbBars";
+            this.rbBars.Size = new System.Drawing.Size(46, 17);
+            this.rbBars.TabIndex = 2;
+            this.rbBars.Text = "Bars";
+            this.rbBars.UseVisualStyleBackColor = true;
+            this.rbBars.CheckedChanged += new System.EventHandler(this.RbGraph_CheckedChanged);
+            // 
+            // rbCurve
+            // 
+            this.rbCurve.AutoSize = true;
+            this.rbCurve.Location = new System.Drawing.Point(144, 16);
+            this.rbCurve.Name = "rbCurve";
+            this.rbCurve.Size = new System.Drawing.Size(53, 17);
+            this.rbCurve.TabIndex = 1;
+            this.rbCurve.Text = "Curve";
+            this.rbCurve.UseVisualStyleBackColor = true;
+            this.rbCurve.CheckedChanged += new System.EventHandler(this.RbGraph_CheckedChanged);
+            // 
+            // rbBoth
+            // 
+            this.rbBoth.AutoSize = true;
+            this.rbBoth.Checked = true;
+            this.rbBoth.Location = new System.Drawing.Point(3, 16);
+            this.rbBoth.Name = "rbBoth";
+            this.rbBoth.Size = new System.Drawing.Size(47, 17);
+            this.rbBoth.TabIndex = 0;
+            this.rbBoth.TabStop = true;
+            this.rbBoth.Text = "Both";
+            this.rbBoth.UseVisualStyleBackColor = true;
+            this.rbBoth.CheckedChanged += new System.EventHandler(this.RbGraph_CheckedChanged);
             // 
             // audioVisualizationPlot1
             // 
@@ -99,7 +151,7 @@
             this.audioVisualizationPlot1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.audioVisualizationPlot1.Location = new System.Drawing.Point(3, 3);
             this.audioVisualizationPlot1.Name = "audioVisualizationPlot1";
-            this.audioVisualizationPlot1.Size = new System.Drawing.Size(770, 221);
+            this.audioVisualizationPlot1.Size = new System.Drawing.Size(770, 214);
             this.audioVisualizationPlot1.TabIndex = 0;
             // 
             // audioVisualizationBars1
@@ -109,10 +161,10 @@
             this.audioVisualizationBars1.ColorHertzLabels = System.Drawing.Color.Magenta;
             this.audioVisualizationBars1.CombineChannels = false;
             this.audioVisualizationBars1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.audioVisualizationBars1.HertzSpan = 200;
-            this.audioVisualizationBars1.Location = new System.Drawing.Point(3, 230);
+            this.audioVisualizationBars1.HertzSpan = 16;
+            this.audioVisualizationBars1.Location = new System.Drawing.Point(3, 223);
             this.audioVisualizationBars1.Name = "audioVisualizationBars1";
-            this.audioVisualizationBars1.Size = new System.Drawing.Size(770, 221);
+            this.audioVisualizationBars1.Size = new System.Drawing.Size(770, 215);
             this.audioVisualizationBars1.TabIndex = 5;
             // 
             // FormMain
@@ -120,15 +172,18 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 507);
-            this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.gbGrapsh);
+            this.Controls.Add(this.tlpGraphs);
             this.Controls.Add(this.btStartStopBars);
             this.Controls.Add(this.cbCombineChannels);
             this.Controls.Add(this.btStartStopLine);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
-            this.Text = "Form1";
-            this.tableLayoutPanel1.ResumeLayout(false);
+            this.Text = "Test application (VPKSoft.AudioVisualization)";
+            this.tlpGraphs.ResumeLayout(false);
+            this.gbGrapsh.ResumeLayout(false);
+            this.gbGrapsh.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,7 +196,11 @@
         private System.Windows.Forms.CheckBox cbCombineChannels;
         private System.Windows.Forms.Button btStartStopBars;
         private VPKSoft.AudioVisualization.AudioVisualizationBars audioVisualizationBars1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel tlpGraphs;
+        private System.Windows.Forms.GroupBox gbGrapsh;
+        private System.Windows.Forms.RadioButton rbBars;
+        private System.Windows.Forms.RadioButton rbCurve;
+        private System.Windows.Forms.RadioButton rbBoth;
     }
 }
 

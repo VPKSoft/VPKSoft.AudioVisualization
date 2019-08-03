@@ -70,5 +70,32 @@ namespace TestApplication
                 btStartStopBars.Text = @"Stop";
             }
         }
+
+        private void RbGraph_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbBoth.Checked)
+            {
+                tlpGraphs.RowStyles[0] = new RowStyle(SizeType.Percent, 50);
+                tlpGraphs.RowStyles[1] = new RowStyle(SizeType.Percent, 50);
+                audioVisualizationPlot1.Start();
+                audioVisualizationBars1.Start();
+            }
+            else if (rbCurve.Checked)
+            {
+                tlpGraphs.RowStyles[0] = new RowStyle(SizeType.Percent, 100);
+                tlpGraphs.RowStyles[1] = new RowStyle(SizeType.Percent, 0);
+                audioVisualizationBars1.Stop();
+                audioVisualizationPlot1.Start();
+                btStartStopBars.Text = @"Stop";
+            }
+            else if (rbBars.Checked)
+            {
+                tlpGraphs.RowStyles[0] = new RowStyle(SizeType.Percent, 0);
+                tlpGraphs.RowStyles[1] = new RowStyle(SizeType.Percent, 100);
+                audioVisualizationPlot1.Stop();
+                audioVisualizationBars1.Start();
+                btStartStopLine.Text = @"Stop";
+            }
+        }
     }
 }
