@@ -62,7 +62,7 @@
             this.pnRight.Name = "pnRight";
             this.pnRight.Size = new System.Drawing.Size(660, 90);
             this.pnRight.TabIndex = 1;
-            this.pnRight.Paint += new System.Windows.Forms.PaintEventHandler(this.PnRight_Paint);
+            this.pnRight.Paint += new System.Windows.Forms.PaintEventHandler(this.PnBar_Paint);
             // 
             // pnLeft
             // 
@@ -72,7 +72,7 @@
             this.pnLeft.Name = "pnLeft";
             this.pnLeft.Size = new System.Drawing.Size(660, 90);
             this.pnLeft.TabIndex = 0;
-            this.pnLeft.Paint += new System.Windows.Forms.PaintEventHandler(this.PnLeft_Paint);
+            this.pnLeft.Paint += new System.Windows.Forms.PaintEventHandler(this.PnBar_Paint);
             // 
             // pnKHzLabels
             // 

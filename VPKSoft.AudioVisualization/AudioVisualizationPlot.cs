@@ -110,56 +110,71 @@ namespace VPKSoft.AudioVisualization
 
         private void PnLeft_Paint(object sender, PaintEventArgs e)
         {
-            double width = ((Panel) sender).Width;
-            double height = ((Panel) sender).Height;
-
-            using (var brush = new SolidBrush(BackColor))
+            try
             {
-                e.Graphics.FillRectangle(brush, e.ClipRectangle);
-            }
+                double width = ((Panel) sender).Width;
+                double height = ((Panel) sender).Height;
 
-            if (ValidData)
-            {
-                List<Point> linePoints = GetPoints(true, width, height);
-                using (var pen = new Pen(ColorAudioChannelLeft))
+                using (var brush = new SolidBrush(BackColor))
                 {
-                    e.Graphics.DrawLines(pen, linePoints.ToArray());
+                    e.Graphics.FillRectangle(brush, e.ClipRectangle);
                 }
 
+                if (ValidData)
+                {
+                    List<Point> linePoints = GetPoints(true, width, height);
+                    using (var pen = new Pen(ColorAudioChannelLeft))
+                    {
+                        e.Graphics.DrawLines(pen, linePoints.ToArray());
+                    }
+
+                    if (CombineChannels)
+                    {
+                        linePoints = GetPoints(false, width, height);
+                        using (var pen = new Pen(ColorAudioChannelRight))
+                        {
+                            e.Graphics.DrawLines(pen, linePoints.ToArray());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // report the exception..
+                ExceptionLogAction?.Invoke(ex);
+            }
+        }
+
+        private void PnRight_Paint(object sender, PaintEventArgs e)
+        {
+            try
+            {
                 if (CombineChannels)
                 {
-                    linePoints = GetPoints(false, width, height);
+                    return;
+                }
+
+                double width = ((Panel) sender).Width;
+                double height = ((Panel) sender).Height;
+                using (var brush = new SolidBrush(BackColor))
+                {
+                    e.Graphics.FillRectangle(brush, e.ClipRectangle);
+                }
+
+                if (ValidData)
+                {
+                    List<Point> linePoints = GetPoints(true, width, height);
                     using (var pen = new Pen(ColorAudioChannelRight))
                     {
                         e.Graphics.DrawLines(pen, linePoints.ToArray());
                     }
                 }
             }
-        }
-
-        private void PnRight_Paint(object sender, PaintEventArgs e)
-        {
-            if (CombineChannels)
+            catch (Exception ex)
             {
-                return;
-            }
-
-            double width = ((Panel) sender).Width;
-            double height = ((Panel) sender).Height;
-            using (var brush = new SolidBrush(BackColor))
-            {
-                e.Graphics.FillRectangle(brush, e.ClipRectangle);
-            }
-
-            if (ValidData)
-            {
-                List<Point> linePoints = GetPoints(true, width, height);
-                using (var pen = new Pen(ColorAudioChannelRight))
-                {
-                    e.Graphics.DrawLines(pen, linePoints.ToArray());
-                }
-            }
-        }
+                // report the exception..
+                ExceptionLogAction?.Invoke(ex);
+            }        }
 
         private void PnKHzLabels_Paint(object sender, PaintEventArgs e)
         {

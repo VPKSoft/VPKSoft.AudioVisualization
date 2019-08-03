@@ -29,7 +29,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -68,12 +67,21 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             {
                 Refresh();
             }
+            else if (e.PropertyName.Equals("HertzSpan"))
+            {
+                if (ValidData)
+                {
+                    Refresh();
+                }
+            }
         }
 
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
+#pragma warning disable CS0067 // the PropertyChanged.Fody does dependency injection to the properties, so do disable the warning..
         public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore CS0067
 
         /// <summary>
         /// Handles the Disposed event of the AudioVisualizationBase control.
@@ -107,6 +115,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         /// <summary>
         /// Gets or sets the MM device to use for audio visualization.
         /// </summary>
+        [Browsable(false)]
         public MMDevice ListenMmDevice { get; set; }
 
         /// <summary>
@@ -163,7 +172,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         /// Gets a value indicating whether there is valid FFT data (the audio encoded with Fast Fourier Transformation) available for rendering.
         /// </summary>
         /// <value><c>true</c> if [there is valid FFT data (the audio encoded with Fast Fourier Transformation) available for rendering; otherwise, <c>false</c>.</value>
-        internal bool ValidData => !(DataFftLeft == null || DataFftLeft.Length == 0);
+        internal bool ValidData => (DataFftLeft != null && DataFftLeft.Length > 0) && (DataFftRight != null && DataFftRight.Length > 0);
 
         // ReSharper disable once CommentTypo
         /// <summary>
@@ -606,36 +615,50 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             Refresh();
         }
 
-        internal List<double> CreateWeightedFftArray(bool left, int hertzSpan, int height)
+        internal (List<double> left, List<double> right) CreateWeightedFftArray(int hertzSpan, int height)
         {
-            var data = left ? DataFftLeft : DataFftRight;
-            int span = DataFftLeft.Length / hertzSpan;
-            List<double> result = new List<double>();
-
-            if (ValidData)
+            List<double> resultLeft = new List<double>();
+            List<double> resultRight = new List<double>();
+            try
             {
-                CropFftWithMinorityPercentage(2);
-                for (int i = 0; i < data.Length; i += span) 
+                int span = DataFftLeft.Length / hertzSpan;
+
+                if (ValidData)
                 {
-                    List<double> sampleSpan = new List<double>();
-                    for (int j = i; j < i + span && j < data.Length; j++)
+                    CropFftWithMinorityPercentage(2);
+                    for (int i = 0; i < DataFftLeft.Length; i += span)
                     {
-                        sampleSpan.Add(data[j]);
+                        List<double> sampleSpanLeft = new List<double>();
+                        List<double> sampleSpanRight = new List<double>();
+                        for (int j = i; j < i + span && j < DataFftLeft.Length; j++)
+                        {
+                            sampleSpanLeft.Add(DataFftLeft[j]);
+                            sampleSpanRight.Add(DataFftRight[j]);
+                        }
+
+                        double weightLeft = sampleSpanLeft.Where(f => f > 0).Sum();
+                        double weightRight = sampleSpanRight.Where(f => f > 0).Sum();
+
+                        resultLeft.Add(weightLeft / (sampleSpanLeft.Count > 0 ? sampleSpanLeft.Count : 1));
+                        resultRight.Add(weightRight / (sampleSpanRight.Count > 0 ? sampleSpanRight.Count : 1));
                     }
 
-                    double weight = sampleSpan.Where(f => f > 0).Sum();
-
-                    result.Add(weight / (sampleSpan.Count > 0 ? sampleSpan.Count : 1));
+                    double yScaleStepping = Math.Max(resultLeft.Max(), resultRight.Max()) / height;
+                    for (int i = 0; i < resultLeft.Count; i++)
+                    {
+                        resultLeft[i] = resultLeft[i] / yScaleStepping;
+                        resultRight[i] = resultRight[i] / yScaleStepping;
+                    }
                 }
 
-                double yScaleStepping = result.Max() / height;
-                for (int i = 0; i < result.Count; i++)
-                {
-                    result[i] = result[i] / yScaleStepping;
-                }
+                return (resultLeft, resultRight);
             }
-
-            return result;
+            catch (Exception ex)
+            {
+                // report the exception..
+                ExceptionLogAction?.Invoke(ex);
+                return (resultLeft, resultRight);
+            }
         }
     }
 }

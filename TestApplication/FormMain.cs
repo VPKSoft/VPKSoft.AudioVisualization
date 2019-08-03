@@ -40,6 +40,7 @@ namespace TestApplication
         {
             var checkBox = (CheckBox) sender;
             audioVisualizationPlot1.CombineChannels = checkBox.Checked;
+            audioVisualizationBars1.CombineChannels = checkBox.Checked;
         }
 
         private void BtStartStop_Click(object sender, EventArgs e)

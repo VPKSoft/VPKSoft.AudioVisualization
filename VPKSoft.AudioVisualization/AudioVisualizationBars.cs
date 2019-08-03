@@ -1,12 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License
+/*
+MIT License
+
+Copyright(c) 2019 Petteri Kautonen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+#endregion
+
+using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using VPKSoft.AudioVisualization.CommonClasses.BaseClasses;
 
@@ -86,10 +107,12 @@ namespace VPKSoft.AudioVisualization
         [Category("Appearance")]
         public int HertzSpan { get; set; } = 64;
 
-        private void PnLeft_Paint(object sender, PaintEventArgs e)
+        private void PnBar_Paint(object sender, PaintEventArgs e)
         {
-            double width = ((Panel) sender).Width;
-            double height = ((Panel) sender).Height;
+            if (CombineChannels && sender.Equals(pnRight))
+            {
+                return;
+            }
 
             using (var brush = new SolidBrush(BackColor))
             {
@@ -105,23 +128,54 @@ namespace VPKSoft.AudioVisualization
 
             if (ValidData)
             {
-                using (var brush = new SolidBrush(ColorAudioChannelLeft))
+                Brush brush;
+                if (CombineChannels)
                 {
-                    List<double> barValues = CreateWeightedFftArray(true, HertzSpan, e.ClipRectangle.Height);
+                    brush = new SolidBrush(ColorAudioChannelLeft);
+                }
+                else
+                {
+                    brush = new SolidBrush(sender.Equals(pnLeft) ? ColorAudioChannelLeft : ColorAudioChannelRight);
+                }
 
-                    for (int i = 0; i < barValues.Count; i++)
+                using (brush)
+                {
+                    var barValues = CreateWeightedFftArray(HertzSpan, e.ClipRectangle.Height);
+
+                    var values = sender.Equals(pnLeft) || CombineChannels ? barValues.left : barValues.right;
+
+
+                    for (int i = 0; i < values.Count; i++)
                     {
-                        int barValue = e.ClipRectangle.Bottom - (int) barValues[i];
+                        int barValue = e.ClipRectangle.Bottom - (int) values[i];
 
                         e.Graphics.FillRectangle(brush,
-                            new Rectangle((int)((double)i * barStep), barValue, (int)barStep - 1, e.ClipRectangle.Height - barValue));
+                            new Rectangle((int)(i * barStep), barValue, (int)barStep - 1, e.ClipRectangle.Height - barValue));
                     }
                 }
-            }
-        }
 
-        private void PnRight_Paint(object sender, PaintEventArgs e)
-        {
+                if (CombineChannels)
+                {
+                    brush = new SolidBrush(ColorAudioChannelRight);
+
+                    using (brush)
+                    {
+                        var barValues = CreateWeightedFftArray(HertzSpan, e.ClipRectangle.Height);
+
+                        var values = barValues.right;
+
+
+                        for (int i = 0; i < values.Count; i++)
+                        {
+                            int barValue = e.ClipRectangle.Bottom - (int) values[i];
+
+                            e.Graphics.FillRectangle(brush,
+                                new Rectangle((int)(i * barStep), barValue, (int)barStep - 1, e.ClipRectangle.Height - barValue));
+                        }
+                    }
+
+                }
+            }
         }
 
         private void PnKHzLabels_Paint(object sender, PaintEventArgs e)
