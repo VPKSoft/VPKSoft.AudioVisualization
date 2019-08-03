@@ -1,6 +1,6 @@
 ﻿namespace VPKSoft.AudioVisualization
 {
-    partial class AudioVisualizationPlot
+    partial class AudioVisualizationBars
     {
         /// <summary> 
         /// Required designer variable.
@@ -52,7 +52,7 @@
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tlpMain.Size = new System.Drawing.Size(700, 200);
-            this.tlpMain.TabIndex = 0;
+            this.tlpMain.TabIndex = 1;
             // 
             // pnRight
             // 
@@ -85,12 +85,12 @@
             this.pnKHzLabels.TabIndex = 2;
             this.pnKHzLabels.Paint += new System.Windows.Forms.PaintEventHandler(this.PnKHzLabels_Paint);
             // 
-            // AudioVisualizationPlot
+            // AudioVisualizationBars
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tlpMain);
-            this.Name = "AudioVisualizationPlot";
+            this.Name = "AudioVisualizationBars";
             this.Size = new System.Drawing.Size(700, 200);
             this.tlpMain.ResumeLayout(false);
             this.ResumeLayout(false);

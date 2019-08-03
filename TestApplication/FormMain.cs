@@ -25,13 +25,6 @@ SOFTWARE.
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TestApplication
@@ -43,15 +36,38 @@ namespace TestApplication
             InitializeComponent();
         }
 
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            audioVisualizationPlot1.Start();
-        }
-
         private void CbCombineChannels_CheckedChanged(object sender, EventArgs e)
         {
             var checkBox = (CheckBox) sender;
             audioVisualizationPlot1.CombineChannels = checkBox.Checked;
+        }
+
+        private void BtStartStop_Click(object sender, EventArgs e)
+        {
+            if (audioVisualizationPlot1.IsStarted)
+            {
+                audioVisualizationPlot1.Stop();
+                btStartStopLine.Text = @"Start";
+            }
+            else
+            {
+                audioVisualizationPlot1.Start();
+                btStartStopLine.Text = @"Stop";
+            }
+        }
+
+        private void BtStartStopBars_Click(object sender, EventArgs e)
+        {
+            if (audioVisualizationBars1.IsStarted)
+            {
+                audioVisualizationBars1.Stop();
+                btStartStopBars.Text = @"Start";
+            }
+            else
+            {
+                audioVisualizationBars1.Start();
+                btStartStopBars.Text = @"Stop";
+            }
         }
     }
 }

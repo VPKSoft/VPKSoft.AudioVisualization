@@ -68,14 +68,6 @@ namespace VPKSoft.AudioVisualization
             }
         }
 
-        /// <summary>
-        /// Gets or sets the background color for the control.
-        /// </summary>
-        [Description("Gets or sets the background color for the control.")]
-        [Browsable(true)]
-        [Category("Appearance")]
-        public override Color BackColor { get; set; } = Color.Black;
-
         private void TmVisualize_Tick(object sender, EventArgs e)
         {
             if (!ValidData)
@@ -120,16 +112,27 @@ namespace VPKSoft.AudioVisualization
         {
             double width = ((Panel) sender).Width;
             double height = ((Panel) sender).Height;
-            e.Graphics.FillRectangle(Brushes.Black, e.ClipRectangle);
+
+            using (var brush = new SolidBrush(BackColor))
+            {
+                e.Graphics.FillRectangle(brush, e.ClipRectangle);
+            }
+
             if (ValidData)
             {
                 List<Point> linePoints = GetPoints(true, width, height);
-                e.Graphics.DrawLines(Pens.Aqua, linePoints.ToArray());
+                using (var pen = new Pen(ColorAudioChannelLeft))
+                {
+                    e.Graphics.DrawLines(pen, linePoints.ToArray());
+                }
 
                 if (CombineChannels)
                 {
                     linePoints = GetPoints(false, width, height);
-                    e.Graphics.DrawLines(Pens.LimeGreen, linePoints.ToArray());
+                    using (var pen = new Pen(ColorAudioChannelRight))
+                    {
+                        e.Graphics.DrawLines(pen, linePoints.ToArray());
+                    }
                 }
             }
         }
@@ -143,50 +146,24 @@ namespace VPKSoft.AudioVisualization
 
             double width = ((Panel) sender).Width;
             double height = ((Panel) sender).Height;
-            e.Graphics.FillRectangle(Brushes.Black, e.ClipRectangle);
+            using (var brush = new SolidBrush(BackColor))
+            {
+                e.Graphics.FillRectangle(brush, e.ClipRectangle);
+            }
+
             if (ValidData)
             {
                 List<Point> linePoints = GetPoints(true, width, height);
-                e.Graphics.DrawLines(Pens.LimeGreen, linePoints.ToArray());
+                using (var pen = new Pen(ColorAudioChannelRight))
+                {
+                    e.Graphics.DrawLines(pen, linePoints.ToArray());
+                }
             }
         }
 
         private void PnKHzLabels_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(Brushes.Black, e.ClipRectangle);
-
-            int hertz = (int) MaxHertz == 1 ? 24000 : (int)MaxHertz;
-
-                int hertzLabelCount = hertz / 1000 / 2 + 1;
-
-                double startPoint = pnLeft.Left - (e.Graphics.MeasureString("0", Font).Width / 2);
-
-                double endPoint = (pnLeft.Right - pnLeft.Left) +
-                                  (e.Graphics.MeasureString((hertz / 1000).ToString(), Font).Width / 2);
-
-                double stepping = (endPoint - startPoint) / (hertzLabelCount - 1);
-
-                double currentPoint = startPoint;
-
-                for (int i = 0; i < hertzLabelCount; i++)
-                {
-                    if (i == 0)
-                    {
-                        e.Graphics.DrawString("0", Font, Brushes.DarkMagenta, (float)startPoint, 0);
-                    }
-                    else
-                    {
-                        e.Graphics.DrawString((i * 2).ToString(), Font, Brushes.DarkMagenta,
-                            (float) currentPoint + (e.Graphics.MeasureString((i * 2).ToString(), Font).Width / 2), 0);
-                    }
-
-                    currentPoint += stepping;
-                }
-        }
-
-        private void AudioVisualizationPlot_SizeChanged(object sender, EventArgs e)
-        {
-            pnKHzLabels.Refresh();
+            PaintHertzLabels((Panel)sender, e, pnLeft.Left, pnLeft.Right);
         }
     }
 }

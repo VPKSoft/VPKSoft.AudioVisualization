@@ -29,7 +29,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
 namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
@@ -42,7 +44,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
     /// Implements the <see cref="System.Windows.Forms.UserControl" />
     /// </summary>
     /// <seealso cref="System.Windows.Forms.UserControl" />
-    public partial class AudioVisualizationBase : UserControl
+    public partial class AudioVisualizationBase : UserControl, INotifyPropertyChanged
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioVisualizationBase"/> class.
@@ -51,7 +53,27 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         {
             InitializeComponent();
             Disposed += AudioVisualizationBase_Disposed;
+            ListenMmDevice = WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice();
+            PropertyChanged += AudioVisualizationBase_PropertyChanged;
         }
+
+        /// <summary>
+        /// Handles the PropertyChanged event of the AudioVisualizationBase control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private void AudioVisualizationBase_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Contains("Color"))
+            {
+                Refresh();
+            }
+        }
+
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// Handles the Disposed event of the AudioVisualizationBase control.
@@ -63,6 +85,29 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             Disposed -= AudioVisualizationBase_Disposed;
             Stop();
         }
+
+        /// <summary>
+        /// Gets the list of MM devices.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        internal List<MMDevice> MMDevices
+        {
+            get
+            {
+                var result = new List<MMDevice>();
+                using (var enumerator = new MMDeviceEnumerator())
+                {
+                    result.AddRange(enumerator.EnumerateAudioEndPoints(DataFlow.All, DeviceState.All).ToArray());
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the MM device to use for audio visualization.
+        /// </summary>
+        public MMDevice ListenMmDevice { get; set; }
 
         /// <summary>
         /// Gets or sets the action to be used to log an exception.
@@ -130,7 +175,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             {
                 if (WasapiLoopbackCapture == null)
                 {
-                    WasapiLoopbackCapture = new WasapiLoopbackCapture();
+                    WasapiLoopbackCapture = new WasapiLoopbackCapture(ListenMmDevice);
                     WasapiLoopbackCapture.DataAvailable += DataAvailable;
                     WasapiLoopbackCapture.StartRecording();
                     tmVisualize.Enabled = true;
@@ -147,6 +192,44 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             }
         }
 
+        /// <summary>
+        /// Gets or sets the background color for the control.
+        /// </summary>
+        [Description("Gets or sets the background color for the control.")]
+        [Browsable(true)]
+        [Category("Appearance")]
+        public override Color BackColor { get; set; } = Color.Black;
+
+        /// <summary>
+        /// Gets or sets the color of the hertz labels.
+        /// </summary>
+        [Description("Gets or sets the color of the hertz labels.")]
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Color ColorHertzLabels { get; set; } = Color.Magenta;
+
+        /// <summary>
+        /// Gets or sets the color of the left audio channel visualization.
+        /// </summary>
+        [Description("Gets or sets the color of the left audio channel visualization.")]
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Color ColorAudioChannelLeft { get; set; } = Color.Aqua;
+
+        /// <summary>
+        /// Gets or sets the color of the left audio channel visualization.
+        /// </summary>
+        [Description("Gets or sets the color of the right audio channel visualization.")]
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Color ColorAudioChannelRight { get; set; } = Color.LimeGreen;
+
+        /// <summary>
+        /// Gets a value indicating whether the MM audio device listening is started.
+        /// </summary>
+        [Browsable(false)]
+        public bool IsStarted => WasapiLoopbackCapture != null;
+
         // ReSharper disable once CommentTypo
         /// <summary>
         /// Stops the WASAPI loop capture and the timer.
@@ -159,10 +242,10 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                 {
                     using (WasapiLoopbackCapture)
                     {
-                        WasapiLoopbackCapture = new WasapiLoopbackCapture();
                         WasapiLoopbackCapture.DataAvailable -= DataAvailable;
                         WasapiLoopbackCapture.StopRecording();
                         tmVisualize.Enabled = false;
+                        WasapiLoopbackCapture = null;
                     }
                 }
             }
@@ -464,6 +547,95 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             }
 
             return ignoreBelowHz;
+        }
+
+        /// <summary>
+        /// Paints the hertz labels to a given <see cref="Panel"/> instance.
+        /// </summary>
+        /// <param name="panel">The panel to paint the hertz labels into.</param>
+        /// <param name="e">The <see cref="PaintEventArgs"/> instance containing the paint event data.</param>
+        /// <param name="left">The left-most position where to center the first label.</param>
+        /// <param name="right">The right-most position where to center the last label.</param>
+        internal void PaintHertzLabels(Panel panel, PaintEventArgs e, int left, int right)
+        {
+            try
+            {
+                e.Graphics.FillRectangle(Brushes.Black, e.ClipRectangle);
+
+                int hertz = (int) MaxHertz == 1 ? 24000 : (int) MaxHertz;
+
+                int hertzLabelCount = hertz / 1000 / 2 + 1;
+
+                double startPoint = left - (e.Graphics.MeasureString("0", Font).Width / 2);
+
+                double endPoint = (right - left) +
+                                  (e.Graphics.MeasureString((hertz / 1000).ToString(), Font).Width / 2);
+
+                double stepping = (endPoint - startPoint) / (hertzLabelCount - 1);
+
+                double currentPoint = startPoint;
+
+                using (var brush = new SolidBrush(ColorHertzLabels))
+                {
+                    for (int i = 0; i < hertzLabelCount; i++)
+                    {
+                        if (i == 0)
+                        {
+                            e.Graphics.DrawString("0", Font, brush, (float) startPoint, 0);
+                        }
+                        else
+                        {
+                            e.Graphics.DrawString((i * 2).ToString(), Font, brush,
+                                (float) currentPoint + (e.Graphics.MeasureString((i * 2).ToString(), Font).Width / 2),
+                                0);
+                        }
+
+                        currentPoint += stepping;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // report the exception..
+                ExceptionLogAction?.Invoke(ex);
+            }
+        }
+
+        private void AudioVisualizationBase_SizeChanged(object sender, EventArgs e)
+        {
+            Refresh();
+        }
+
+        internal List<double> CreateWeightedFftArray(bool left, int hertzSpan, int height)
+        {
+            var data = left ? DataFftLeft : DataFftRight;
+            int span = DataFftLeft.Length / hertzSpan;
+            List<double> result = new List<double>();
+
+            if (ValidData)
+            {
+                CropFftWithMinorityPercentage(2);
+                for (int i = 0; i < data.Length; i += span) 
+                {
+                    List<double> sampleSpan = new List<double>();
+                    for (int j = i; j < i + span && j < data.Length; j++)
+                    {
+                        sampleSpan.Add(data[j]);
+                    }
+
+                    double weight = sampleSpan.Where(f => f > 0).Sum();
+
+                    result.Add(weight / (sampleSpan.Count > 0 ? sampleSpan.Count : 1));
+                }
+
+                double yScaleStepping = result.Max() / height;
+                for (int i = 0; i < result.Count; i++)
+                {
+                    result[i] = result[i] / yScaleStepping;
+                }
+            }
+
+            return result;
         }
     }
 }
