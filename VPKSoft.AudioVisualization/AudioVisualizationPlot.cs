@@ -170,7 +170,10 @@ namespace VPKSoft.AudioVisualization
         {
             try
             {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                if (UseAntiAliasing)
+                {
+                    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                }
 
                 double width = ((Panel) sender).Width;
                 double height = ((Panel) sender).Height;
@@ -207,7 +210,10 @@ namespace VPKSoft.AudioVisualization
 
         private void PnRight_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            if (UseAntiAliasing)
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            }
 
             try
             {
