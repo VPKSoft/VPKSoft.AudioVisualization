@@ -10,7 +10,7 @@
     <iconUrl>http://www.vpksoft.net/site/VPKSoft.ico</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Intial NuGet release.</releaseNotes>
+    <releaseNotes>Fixed the UseAntiAliasing property for the AudioVisualizationPlot control.</releaseNotes>
     <copyright>Copyright © VPKSoft 2019</copyright>
     <tags>audio visualization spectrum analyze vpksoft winforms naudio</tags>
     <license type="expression">MIT</license>
