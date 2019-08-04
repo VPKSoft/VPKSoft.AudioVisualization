@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/VPKSoft/VPKSoft.AudioVisualization</projectUrl>
+    <iconUrl>http://www.vpksoft.net/site/VPKSoft.ico</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Intial NuGet release.</releaseNotes>
+    <copyright>Copyright © VPKSoft 2019</copyright>
+    <tags>audio visualization spectrum analyze vpksoft winforms naudio</tags>
+    <license type="expression">MIT</license>
+  </metadata>
+</package>
