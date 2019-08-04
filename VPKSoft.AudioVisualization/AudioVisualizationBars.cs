@@ -119,11 +119,15 @@ namespace VPKSoft.AudioVisualization
                     {
                         tlpMain.RowStyles[2] = new RowStyle(SizeType.Absolute, 20);
                         pnKHzLabels.Visible = true;
+                        tlpMain.ColumnStyles[0] = new ColumnStyle(SizeType.Absolute, 20);
+                        tlpMain.ColumnStyles[2] = new ColumnStyle(SizeType.Absolute, 20);
                     }
                     else
                     {
                         pnKHzLabels.Visible = false;
                         tlpMain.RowStyles[2] = new RowStyle(SizeType.Absolute, 0);
+                        tlpMain.ColumnStyles[0] = new ColumnStyle(SizeType.Absolute, 0);
+                        tlpMain.ColumnStyles[2] = new ColumnStyle(SizeType.Absolute, 0);
                     }
                 }
             }
