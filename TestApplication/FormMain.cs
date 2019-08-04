@@ -97,5 +97,11 @@ namespace TestApplication
                 btStartStopLine.Text = @"Stop";
             }
         }
+
+        private void CbUseGradientWithBars_CheckedChanged(object sender, EventArgs e)
+        {
+            var checkBox = (CheckBox) sender;
+            audioVisualizationBars1.DrawWithGradient = checkBox.Checked;
+        }
     }
 }

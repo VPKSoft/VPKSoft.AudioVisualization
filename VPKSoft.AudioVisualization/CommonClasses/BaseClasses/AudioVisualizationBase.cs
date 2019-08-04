@@ -52,9 +52,36 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         {
             InitializeComponent();
             Disposed += AudioVisualizationBase_Disposed;
-            ListenMmDevice = WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice();
+            listenMmDevice = WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice();
             PropertyChanged += AudioVisualizationBase_PropertyChanged;
         }
+
+        /// <summary>
+        /// Calculates the height of the hertz label panel.
+        /// </summary>
+        /// <param name="handle">The handle to a control to measure the text size from.</param>
+        /// <param name="font">The font to be used to measure the text size.</param>
+        /// <returns>True if the <see cref="HertzLabelsHeight"/> property value was changed.</returns>
+        internal bool CalculateHertzLabelHeight(IntPtr handle, Font font)
+        {
+            using (var graphics = Graphics.FromHwnd(Handle))
+            {
+                var newHeight = (int) (graphics.MeasureString(MeasureHertzLabelString, Font).Height + 8);
+                bool result = newHeight != HertzLabelsHeight;
+                HertzLabelsHeight = newHeight;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// A string to measure the height of the hertz label panel.
+        /// </summary>
+        private const string MeasureHertzLabelString = "0123456789";
+
+        /// <summary>
+        /// Gets or sets the height of the hertz label panel.
+        /// </summary>
+        internal int HertzLabelsHeight { get; set; } = 21;
 
         /// <summary>
         /// Handles the PropertyChanged event of the AudioVisualizationBase control.
@@ -74,7 +101,19 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                     Refresh();
                 }
             }
+            else if (e.PropertyName == nameof(Font))
+            {
+                if (CalculateHertzLabelHeight(Handle, Font))
+                {
+                    ShouldResizeChildren?.Invoke(this, new EventArgs());
+                }
+            }
         }
+
+        /// <summary>
+        /// Occurs when the font has changed and the <see cref="HertzLabelsHeight"/> property value changed.
+        /// </summary>
+        internal EventHandler ShouldResizeChildren;
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -95,10 +134,10 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         }
 
         /// <summary>
-        /// Gets the list of MM devices.
+        /// Gets the list of MM devices to be used with the <see cref="ListenMmDevice"/> property.
         /// </summary>
-        // ReSharper disable once InconsistentNaming
-        internal List<MMDevice> MMDevices
+        [Browsable(false)]
+        public List<MMDevice> MmDevices
         {
             get
             {
@@ -112,11 +151,30 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             }
         }
 
+        // the MM device can be changed on the fly..
+        private MMDevice listenMmDevice;
+
         /// <summary>
         /// Gets or sets the MM device to use for audio visualization.
         /// </summary>
         [Browsable(false)]
-        public MMDevice ListenMmDevice { get; set; }
+        public MMDevice ListenMmDevice
+        {
+            get => listenMmDevice;
+
+            set
+            {
+                if (value != listenMmDevice && value != null)
+                {
+                    listenMmDevice = value;
+                    if (IsStarted)
+                    {
+                        Stop();
+                        Start();
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the action to be used to log an exception.
@@ -187,9 +245,9 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                     WasapiLoopbackCapture = new WasapiLoopbackCapture(ListenMmDevice);
                     WasapiLoopbackCapture.DataAvailable += DataAvailable;
                     WasapiLoopbackCapture.StartRecording();
-                    tmVisualize.Enabled = true;
                     Channels = WasapiLoopbackCapture.WaveFormat.Channels;
                     BitsPerSample = WasapiLoopbackCapture.WaveFormat.BitsPerSample;
+                    tmVisualize.Enabled = true;
                 }
             }
             catch (Exception ex)
@@ -234,6 +292,33 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         public Color ColorAudioChannelRight { get; set; } = Color.LimeGreen;
 
         /// <summary>
+        /// Gets or sets the refresh rate for the audio visualization.
+        /// </summary>
+        [Description("Gets or sets the refresh rate for the audio visualization.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public int RefreshRate
+        {
+            get => tmVisualize.Interval;
+
+            set
+            {
+                if (tmVisualize.Interval != value && value >= 5)
+                {
+                    tmVisualize.Interval = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the minority crop percentage.
+        /// </summary>
+        [Description("Gets or sets the minority crop percentage.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public int MinorityCropPercentage { get; set; } = 2;
+
+        /// <summary>
         /// Gets a value indicating whether the MM audio device listening is started.
         /// </summary>
         [Browsable(false)]
@@ -249,11 +334,11 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             {
                 if (WasapiLoopbackCapture != null)
                 {
+                    tmVisualize.Enabled = false;
                     using (WasapiLoopbackCapture)
                     {
                         WasapiLoopbackCapture.DataAvailable -= DataAvailable;
                         WasapiLoopbackCapture.StopRecording();
-                        tmVisualize.Enabled = false;
                         WasapiLoopbackCapture = null;
                     }
                 }
@@ -434,9 +519,8 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         /// <summary>
         /// Crops the FFT (Fast Fourier Transformation) data from the highest peak values with a given minority percentage value.
         /// </summary>
-        /// <param name="percentage">The minority percentage value.</param>
         /// <param name="steps">A size of a step while calculating downwards with the peak values.</param>
-        internal void CropFftWithMinorityPercentage(double percentage = 1, int steps = 1000)
+        internal void CropFftWithMinorityPercentage(int steps = 1000)
         {
             if (ValidData)
             {
@@ -450,7 +534,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                     double max = Math.Max(DataFftLeft.Max(), DataFftRight.Max());
                     double step = max / steps;
                     double count = DataFftLeft.Length;
-                    while ((DataFftLeft.Count(f => f >= max) / count * 100) < percentage)
+                    while ((DataFftLeft.Count(f => f >= max) / count * 100) < MinorityCropPercentage)
                     {
                         max -= step;
                     }
@@ -492,7 +576,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             {
                 if (ValidData)
                 {
-                    CropFftWithMinorityPercentage(2);
+                    CropFftWithMinorityPercentage();
                     double xScaleStepping = width / DataFftRight.Length;
                     double yScaleStepping = height / DataFftRight.Max();
                     var data = left ? DataFftLeft : DataFftRight;
@@ -520,11 +604,38 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         }
 
         /// <summary>
+        /// A delegate for the <see cref="DataCalculated"/> event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The data calculated event arguments.</param>
+        public delegate void OnDataCalculated(object sender, DataCalculatedEventArgs e);
+
+        /// <summary>
+        /// Occurs when the audio data is calculated and visualized.
+        /// </summary>
+        public event OnDataCalculated DataCalculated;
+
+        /// <summary>
+        /// Raises the data calculated event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="DataCalculatedEventArgs"/> instance containing the event data.</param>
+        internal void RaiseDataCalculatedEvent(object sender, DataCalculatedEventArgs e)
+        {
+            DataCalculated?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to display the hertz labels.
+        /// </summary>
+        public virtual bool DisplayHertzLabels { get; set; }
+
+        /// <summary>
         /// Gets the peak frequency of the current FTT (Fast Fourier Transform Data).
         /// </summary>
         /// <param name="ignoreBelowHz">A value of which below the frequency should be ignored in hertz.</param>
         /// <returns>The peak frequency in hertz.</returns>
-        internal double GetPeakFrequency(double ignoreBelowHz = 200)
+        public double GetPeakFrequency(double ignoreBelowHz = 200)
         {
             try
             {
@@ -590,13 +701,13 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                     {
                         if (i == 0)
                         {
-                            e.Graphics.DrawString("0", Font, brush, (float) startPoint, 0);
+                            e.Graphics.DrawString("0", Font, brush, (float) startPoint, 4);
                         }
                         else
                         {
                             e.Graphics.DrawString((i * 2).ToString(), Font, brush,
                                 (float) currentPoint + (e.Graphics.MeasureString((i * 2).ToString(), Font).Width / 2),
-                                0);
+                                4);
                         }
 
                         currentPoint += stepping;
@@ -625,7 +736,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
 
                 if (ValidData)
                 {
-                    CropFftWithMinorityPercentage(2);
+                    CropFftWithMinorityPercentage();
                     for (int i = 0; i < DataFftLeft.Length; i += span)
                     {
                         List<double> sampleSpanLeft = new List<double>();

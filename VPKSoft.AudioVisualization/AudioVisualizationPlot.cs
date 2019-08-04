@@ -28,8 +28,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Windows.Forms;
+using VPKSoft.AudioVisualization.CommonClasses;
 using VPKSoft.AudioVisualization.CommonClasses.BaseClasses;
 
 namespace VPKSoft.AudioVisualization
@@ -48,6 +50,8 @@ namespace VPKSoft.AudioVisualization
         {
             InitializeComponent();
             tmVisualize.Tick += TmVisualize_Tick;
+            Disposed += AudioVisualizationPlot_Disposed;
+            ShouldResizeChildren += AudioVisualizationBars_ShouldResizeChildren;
 
             try
             {
@@ -66,6 +70,24 @@ namespace VPKSoft.AudioVisualization
                 // report the exception..
                 ExceptionLogAction?.Invoke(ex);
             }
+
+            CalculateHertzLabelHeight(pnKHzLabels.Handle, pnKHzLabels.Font);
+        }
+
+        private void AudioVisualizationBars_ShouldResizeChildren(object sender, EventArgs e)
+        {
+            if (DisplayHertzLabels)
+            {
+                tlpMain.RowStyles[2] = new RowStyle(SizeType.Absolute, HertzLabelsHeight);
+            }
+        }
+
+        private void AudioVisualizationPlot_Disposed(object sender, EventArgs e)
+        {
+            Disposed -= AudioVisualizationPlot_Disposed;
+            tmVisualize.Tick -= TmVisualize_Tick;
+            // ReSharper disable once DelegateSubtraction
+            ShouldResizeChildren -= AudioVisualizationBars_ShouldResizeChildren;
         }
 
         private void TmVisualize_Tick(object sender, EventArgs e)
@@ -78,8 +100,44 @@ namespace VPKSoft.AudioVisualization
             tmVisualize.Enabled = false;
             pnLeft.Refresh();
             pnRight.Refresh();
+            RaiseDataCalculatedEvent(this, new DataCalculatedEventArgs {PeakFrequency = GetPeakFrequency()});
             tmVisualize.Enabled = true;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to display the hertz labels.
+        /// </summary>
+        [Browsable(true)]
+        [Description("Gets or sets a value indicating whether to display the hertz labels.")]
+        [Category("Appearance")]
+        public override bool DisplayHertzLabels
+        {
+            get => pnKHzLabels.Visible;
+            set
+            {
+                if (pnKHzLabels.Visible != value)
+                {
+                    if (value)
+                    {
+                        tlpMain.RowStyles[2] = new RowStyle(SizeType.Absolute, 20);
+                        pnKHzLabels.Visible = true;
+                    }
+                    else
+                    {
+                        pnKHzLabels.Visible = false;
+                        tlpMain.RowStyles[2] = new RowStyle(SizeType.Absolute, 0);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value whether to use anti-aliasing with the curve drawing.
+        /// </summary>
+        [Browsable(true)]
+        [Description("Gets or sets a value whether to use anti-aliasing with the curve drawing.")]
+        [Category("Appearance")]
+        public bool UseAntiAliasing { get; set; } = true;
 
         private bool combineChannels;
 
@@ -112,6 +170,8 @@ namespace VPKSoft.AudioVisualization
         {
             try
             {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
                 double width = ((Panel) sender).Width;
                 double height = ((Panel) sender).Height;
 
@@ -147,6 +207,8 @@ namespace VPKSoft.AudioVisualization
 
         private void PnRight_Paint(object sender, PaintEventArgs e)
         {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
             try
             {
                 if (CombineChannels)
@@ -174,11 +236,15 @@ namespace VPKSoft.AudioVisualization
             {
                 // report the exception..
                 ExceptionLogAction?.Invoke(ex);
-            }        }
+            }
+        }
 
         private void PnKHzLabels_Paint(object sender, PaintEventArgs e)
         {
-            PaintHertzLabels((Panel)sender, e, pnLeft.Left, pnLeft.Right);
+            if (DisplayHertzLabels)
+            {
+                PaintHertzLabels((Panel) sender, e, pnLeft.Left, pnLeft.Right);
+            }
         }
     }
 }

@@ -25,21 +25,20 @@ SOFTWARE.
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using VPKSoft.AudioVisualization.CommonClasses.BaseClasses;
 
-namespace VPKSoft.AudioVisualization.CommonClasses.ErrorHandling
+namespace VPKSoft.AudioVisualization.CommonClasses
 {
     /// <summary>
-    /// A class from which a classes logging errors should be derived from.
+    /// Event arguments for the <see cref="AudioVisualizationBase.DataCalculated"/>
+    /// Implements the <see cref="System.EventArgs" />
     /// </summary>
-    public class ErrorHandlingBase
+    /// <seealso cref="System.EventArgs" />
+    public class DataCalculatedEventArgs: EventArgs
     {
         /// <summary>
-        /// Gets or sets the action to be used to log an exception.
+        /// Gets or sets the peak frequency in hertz.
         /// </summary>
-        public static Action<Exception> ExceptionLogAction { get; set; } = null;
+        public double PeakFrequency { get; set; }
     }
 }

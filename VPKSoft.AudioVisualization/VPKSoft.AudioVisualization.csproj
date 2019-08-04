@@ -72,7 +72,7 @@
     <Compile Include="CommonClasses\BaseClasses\AudioVisualizationBase.Designer.cs">
       <DependentUpon>AudioVisualizationBase.cs</DependentUpon>
     </Compile>
-    <Compile Include="CommonClasses\ErrorHandling\ErrorHandlingBase.cs" />
+    <Compile Include="CommonClasses\DataCalculatedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
