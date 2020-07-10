@@ -219,10 +219,23 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             {
                 if (WasapiLoopbackCapture != null && DataFftLeft != null && DataFftLeft.Length > 0)
                 {
-                    return (double) WasapiLoopbackCapture?.WaveFormat.SampleRate / DataFftLeft.Length / 2;
+                    return (double) SampleRate / DataFftLeft.Length / 2;
                 }
 
                 return 1;
+            }
+        }
+
+        /// <summary>
+        /// Gets the sample rate of the <see cref="WasapiLoopbackCapture"/> device.
+        /// </summary>
+        /// <value>The sample rate.</value>
+        internal int SampleRate
+        {
+            get
+            {
+                var rate = WasapiLoopbackCapture?.WaveFormat.SampleRate;
+                return rate ?? 0;
             }
         }
 
