@@ -25,7 +25,9 @@ SOFTWARE.
 #endregion
 
 using System;
+using System.Linq;
 using System.Windows.Forms;
+using VPKSoft.AudioVisualization;
 
 namespace TestApplication
 {
@@ -34,6 +36,8 @@ namespace TestApplication
         public FormMain()
         {
             InitializeComponent();
+            cmbFftWindowingStyle.Items.AddRange(Enum.GetValues(typeof(WindowType)).Cast<object>().ToArray());
+            cmbFftWindowingStyle.SelectedIndex = 0;
         }
 
         private void CbCombineChannels_CheckedChanged(object sender, EventArgs e)
@@ -102,6 +106,30 @@ namespace TestApplication
         {
             var checkBox = (CheckBox) sender;
             audioVisualizationBars1.DrawWithGradient = checkBox.Checked;
+        }
+
+        private void cmbFftWindowingStyle_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var combo = (ComboBox) sender;
+            if (combo.SelectedItem != null)
+            {
+                audioVisualizationBars1.FftWindowType = (WindowType) combo.SelectedItem;
+                audioVisualizationPlot1.FftWindowType = (WindowType) combo.SelectedItem;
+            }
+        }
+
+        private void cbBarLevelCropping_CheckedChanged(object sender, EventArgs e)
+        {
+            var checkBox = (CheckBox) sender;
+            audioVisualizationBars1.MinorityCropOnBarLevel = checkBox.Checked;
+            audioVisualizationPlot1.MinorityCropOnBarLevel = checkBox.Checked;
+        }
+
+        private void nudMinorityCrop_ValueChanged(object sender, EventArgs e)
+        {
+            var value = (int) ((NumericUpDown) sender).Value;
+            audioVisualizationBars1.MinorityCropPercentage = value;
+            audioVisualizationPlot1.MinorityCropPercentage = value;
         }
     }
 }

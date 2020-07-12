@@ -40,14 +40,20 @@
             this.cbUseGradientWithBars = new System.Windows.Forms.CheckBox();
             this.audioVisualizationPlot1 = new VPKSoft.AudioVisualization.AudioVisualizationPlot();
             this.audioVisualizationBars1 = new VPKSoft.AudioVisualization.AudioVisualizationBars();
+            this.lbFftWindowingStyle = new System.Windows.Forms.Label();
+            this.cmbFftWindowingStyle = new System.Windows.Forms.ComboBox();
+            this.cbBarLevelCropping = new System.Windows.Forms.CheckBox();
+            this.lbMinorityCrop = new System.Windows.Forms.Label();
+            this.nudMinorityCrop = new System.Windows.Forms.NumericUpDown();
             this.tlpGraphs.SuspendLayout();
             this.gbGrapsh.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMinorityCrop)).BeginInit();
             this.SuspendLayout();
             // 
             // btStartStopLine
             // 
             this.btStartStopLine.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btStartStopLine.Location = new System.Drawing.Point(12, 472);
+            this.btStartStopLine.Location = new System.Drawing.Point(12, 427);
             this.btStartStopLine.Name = "btStartStopLine";
             this.btStartStopLine.Size = new System.Drawing.Size(75, 23);
             this.btStartStopLine.TabIndex = 1;
@@ -59,7 +65,7 @@
             // 
             this.cbCombineChannels.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbCombineChannels.AutoSize = true;
-            this.cbCombineChannels.Location = new System.Drawing.Point(174, 459);
+            this.cbCombineChannels.Location = new System.Drawing.Point(180, 427);
             this.cbCombineChannels.Name = "cbCombineChannels";
             this.cbCombineChannels.Size = new System.Drawing.Size(113, 17);
             this.cbCombineChannels.TabIndex = 2;
@@ -70,7 +76,7 @@
             // btStartStopBars
             // 
             this.btStartStopBars.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btStartStopBars.Location = new System.Drawing.Point(93, 472);
+            this.btStartStopBars.Location = new System.Drawing.Point(93, 427);
             this.btStartStopBars.Name = "btStartStopBars";
             this.btStartStopBars.Size = new System.Drawing.Size(75, 23);
             this.btStartStopBars.TabIndex = 4;
@@ -92,7 +98,7 @@
             this.tlpGraphs.RowCount = 2;
             this.tlpGraphs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tlpGraphs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpGraphs.Size = new System.Drawing.Size(776, 441);
+            this.tlpGraphs.Size = new System.Drawing.Size(776, 409);
             this.tlpGraphs.TabIndex = 6;
             // 
             // gbGrapsh
@@ -101,7 +107,7 @@
             this.gbGrapsh.Controls.Add(this.rbBars);
             this.gbGrapsh.Controls.Add(this.rbCurve);
             this.gbGrapsh.Controls.Add(this.rbBoth);
-            this.gbGrapsh.Location = new System.Drawing.Point(403, 456);
+            this.gbGrapsh.Location = new System.Drawing.Point(406, 427);
             this.gbGrapsh.Name = "gbGrapsh";
             this.gbGrapsh.Size = new System.Drawing.Size(382, 39);
             this.gbGrapsh.TabIndex = 7;
@@ -147,7 +153,7 @@
             // 
             this.cbUseGradientWithBars.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbUseGradientWithBars.AutoSize = true;
-            this.cbUseGradientWithBars.Location = new System.Drawing.Point(174, 482);
+            this.cbUseGradientWithBars.Location = new System.Drawing.Point(180, 450);
             this.cbUseGradientWithBars.Name = "cbUseGradientWithBars";
             this.cbUseGradientWithBars.Size = new System.Drawing.Size(162, 17);
             this.cbUseGradientWithBars.TabIndex = 8;
@@ -164,10 +170,10 @@
             this.audioVisualizationPlot1.DisplayHertzLabels = true;
             this.audioVisualizationPlot1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.audioVisualizationPlot1.Location = new System.Drawing.Point(3, 3);
-            this.audioVisualizationPlot1.MinorityCropPercentage = 2;
+            this.audioVisualizationPlot1.MinorityCropPercentage = 3;
             this.audioVisualizationPlot1.Name = "audioVisualizationPlot1";
             this.audioVisualizationPlot1.RefreshRate = 30;
-            this.audioVisualizationPlot1.Size = new System.Drawing.Size(770, 214);
+            this.audioVisualizationPlot1.Size = new System.Drawing.Size(770, 198);
             this.audioVisualizationPlot1.TabIndex = 0;
             this.audioVisualizationPlot1.UseAntiAliasing = true;
             // 
@@ -185,18 +191,83 @@
             this.audioVisualizationBars1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.audioVisualizationBars1.DrawWithGradient = false;
             this.audioVisualizationBars1.HertzSpan = 128;
-            this.audioVisualizationBars1.Location = new System.Drawing.Point(3, 223);
+            this.audioVisualizationBars1.Location = new System.Drawing.Point(3, 207);
             this.audioVisualizationBars1.MinorityCropPercentage = 3;
             this.audioVisualizationBars1.Name = "audioVisualizationBars1";
             this.audioVisualizationBars1.RefreshRate = 30;
-            this.audioVisualizationBars1.Size = new System.Drawing.Size(770, 215);
+            this.audioVisualizationBars1.Size = new System.Drawing.Size(770, 199);
             this.audioVisualizationBars1.TabIndex = 5;
+            // 
+            // lbFftWindowingStyle
+            // 
+            this.lbFftWindowingStyle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lbFftWindowingStyle.AutoSize = true;
+            this.lbFftWindowingStyle.Location = new System.Drawing.Point(406, 475);
+            this.lbFftWindowingStyle.Name = "lbFftWindowingStyle";
+            this.lbFftWindowingStyle.Size = new System.Drawing.Size(82, 13);
+            this.lbFftWindowingStyle.TabIndex = 9;
+            this.lbFftWindowingStyle.Text = "FFT windowing:";
+            // 
+            // cmbFftWindowingStyle
+            // 
+            this.cmbFftWindowingStyle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cmbFftWindowingStyle.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.cmbFftWindowingStyle.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.cmbFftWindowingStyle.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFftWindowingStyle.FormattingEnabled = true;
+            this.cmbFftWindowingStyle.Location = new System.Drawing.Point(574, 472);
+            this.cmbFftWindowingStyle.Name = "cmbFftWindowingStyle";
+            this.cmbFftWindowingStyle.Size = new System.Drawing.Size(214, 21);
+            this.cmbFftWindowingStyle.TabIndex = 10;
+            this.cmbFftWindowingStyle.SelectedIndexChanged += new System.EventHandler(this.cmbFftWindowingStyle_SelectedIndexChanged);
+            // 
+            // cbBarLevelCropping
+            // 
+            this.cbBarLevelCropping.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbBarLevelCropping.AutoSize = true;
+            this.cbBarLevelCropping.Location = new System.Drawing.Point(180, 473);
+            this.cbBarLevelCropping.Name = "cbBarLevelCropping";
+            this.cbBarLevelCropping.Size = new System.Drawing.Size(226, 17);
+            this.cbBarLevelCropping.TabIndex = 11;
+            this.cbBarLevelCropping.Text = "Use bar level cropping (Bar graph needed)";
+            this.cbBarLevelCropping.UseVisualStyleBackColor = true;
+            this.cbBarLevelCropping.CheckedChanged += new System.EventHandler(this.cbBarLevelCropping_CheckedChanged);
+            // 
+            // lbMinorityCrop
+            // 
+            this.lbMinorityCrop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lbMinorityCrop.AutoSize = true;
+            this.lbMinorityCrop.Location = new System.Drawing.Point(12, 454);
+            this.lbMinorityCrop.Name = "lbMinorityCrop";
+            this.lbMinorityCrop.Size = new System.Drawing.Size(127, 13);
+            this.lbMinorityCrop.TabIndex = 12;
+            this.lbMinorityCrop.Text = "Minority crop percentage:";
+            // 
+            // nudMinorityCrop
+            // 
+            this.nudMinorityCrop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.nudMinorityCrop.Location = new System.Drawing.Point(15, 470);
+            this.nudMinorityCrop.Name = "nudMinorityCrop";
+            this.nudMinorityCrop.Size = new System.Drawing.Size(120, 20);
+            this.nudMinorityCrop.TabIndex = 13;
+            this.nudMinorityCrop.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.nudMinorityCrop.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            this.nudMinorityCrop.ValueChanged += new System.EventHandler(this.nudMinorityCrop_ValueChanged);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 507);
+            this.ClientSize = new System.Drawing.Size(800, 503);
+            this.Controls.Add(this.nudMinorityCrop);
+            this.Controls.Add(this.lbMinorityCrop);
+            this.Controls.Add(this.cbBarLevelCropping);
+            this.Controls.Add(this.cmbFftWindowingStyle);
+            this.Controls.Add(this.lbFftWindowingStyle);
             this.Controls.Add(this.cbUseGradientWithBars);
             this.Controls.Add(this.gbGrapsh);
             this.Controls.Add(this.tlpGraphs);
@@ -210,6 +281,7 @@
             this.tlpGraphs.ResumeLayout(false);
             this.gbGrapsh.ResumeLayout(false);
             this.gbGrapsh.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMinorityCrop)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -228,6 +300,11 @@
         private System.Windows.Forms.RadioButton rbCurve;
         private System.Windows.Forms.RadioButton rbBoth;
         private System.Windows.Forms.CheckBox cbUseGradientWithBars;
+        private System.Windows.Forms.Label lbFftWindowingStyle;
+        private System.Windows.Forms.ComboBox cmbFftWindowingStyle;
+        private System.Windows.Forms.CheckBox cbBarLevelCropping;
+        private System.Windows.Forms.Label lbMinorityCrop;
+        private System.Windows.Forms.NumericUpDown nudMinorityCrop;
     }
 }
 

@@ -30,6 +30,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using FftSharp;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -54,6 +55,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             Disposed += AudioVisualizationBase_Disposed;
             listenMmDevice = WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice();
             PropertyChanged += AudioVisualizationBase_PropertyChanged;
+            IsBarVisualization = GetType() == typeof(AudioVisualizationBars);
         }
 
         /// <summary>
@@ -332,6 +334,30 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         public int MinorityCropPercentage { get; set; } = 2;
 
         /// <summary>
+        /// Gets or sets the minority percentage stepping. I.e. How large the stepping is when cropping the data. <seealso cref="MinorityCropPercentage"/>
+        /// </summary>
+        [Description("Gets or sets the minority percentage stepping.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public int MinorityPercentageStepping { get; set; } = 1000;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the minority cropping should applied on a bar graph after the bar values are calculated.
+        /// </summary>
+        [Description(" Gets or sets a value indicating whether the minority cropping should applied on a bar graph after the bar values are calculated.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public bool MinorityCropOnBarLevel { get; set; }
+
+        /// <summary>
+        /// "Gets or sets the FFT window type applied to the signal.
+        /// </summary>
+        [Description("Gets or sets the FFT window type applied to the signal.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public WindowType FftWindowType { get; set; } = WindowType.Hanning;
+
+        /// <summary>
         /// Gets a value indicating whether the MM audio device listening is started.
         /// </summary>
         [Browsable(false)]
@@ -447,6 +473,32 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         }
 
         /// <summary>
+        /// Gets or sets the custom FFT window function. <seealso cref="WindowType.Custom"/>.
+        /// </summary>
+        /// <value>The custom window function.</value>
+        public Func<int, double[]> CustomWindowFunc { get; set; } = delegate(int points)
+        {
+            var result = new double[points];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = 1;
+            }
+
+            return result;
+        };
+
+        /// <summary>
+        /// Gets or sets the PMC (Pulse Code Modulation) action for the left and for the right audio channel.
+        /// </summary>
+        private Action<double[], double[]> PmcAction { get; set; } = delegate {  };
+
+        /// <summary>
+        /// Gets or sets the action to performed for the audio data after the FFT windowing.
+        /// </summary>
+        private Action<double[], double[]> FftAfterAction { get; set; } = delegate {  };
+
+
+        /// <summary>
         /// Updates the Fast Fourier Transformation arrays from the <see cref="DataPcmLeft"/> and the <see cref="DataFftRight"/> properties.
         /// </summary>
         private void UpdateFft()
@@ -464,13 +516,61 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                     fftPoints *= 2;
                 }
 
+                PmcAction(DataFftLeft, DataPcmRight); // call use the user defined action..
+
+                double[] window;
+                switch (FftWindowType)
+                {
+                    case WindowType.Custom:
+                        window = CustomWindowFunc(fftPoints);
+                        break;
+
+                    case WindowType.Hamming:
+                        window = Window.Hamming(fftPoints);
+                        break;
+
+                    case WindowType.Blackman:
+                        window = Window.Blackman(fftPoints);
+                        break;
+
+                    case WindowType.BlackmanExact:
+                        window = Window.BlackmanExact(fftPoints);
+                        break;
+
+                    case WindowType.BlackmanHarris:
+                        window = Window.BlackmanHarris(fftPoints);
+                        break;
+
+                    case WindowType.FlatTop:
+                        window = Window.FlatTop(fftPoints);
+                        break;
+
+                    case WindowType.Bartlett:
+                        window = Window.Bartlett(fftPoints);
+                        break;
+
+                    case WindowType.Cosine:
+                        window = Window.Cosine(fftPoints);
+                        break;
+
+                    default:
+                        window = new double[fftPoints];
+                        for (int i = 0; i < window.Length; i++)
+                        {
+                            window[i] = 1;
+                        }
+
+                        break;
+                }
+
                 NAudio.Dsp.Complex[] fftFullLeft = new NAudio.Dsp.Complex[fftPoints];
                 NAudio.Dsp.Complex[] fftFullRight = new NAudio.Dsp.Complex[fftPoints];
 
                 for (int i = 0; i < fftPoints; i++)
                 {
-                    fftFullLeft[i].X = (float) (DataPcmLeft[i] * NAudio.Dsp.FastFourierTransform.HammingWindow(i, fftPoints));
-                    fftFullRight[i].X = (float) (DataPcmRight[i] * NAudio.Dsp.FastFourierTransform.HammingWindow(i, fftPoints));
+
+                    fftFullLeft[i].X = (float) (DataPcmLeft[i] * window[i]);
+                    fftFullRight[i].X = (float) (DataPcmRight[i] * window[i]);
                 }
 
                 NAudio.Dsp.FastFourierTransform.FFT(true, (int) Math.Log(fftPoints, 2.0), fftFullLeft);
@@ -490,6 +590,8 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                     DataFftLeft[i] = fftLeftLeft + fftRightLeft;
                     DataFftRight[i] = fftLeftRight + fftRightRight;
                 }
+
+                FftAfterAction(DataFftLeft, DataFftRight); // call use the user defined action..
 
                 Cropped = false;
             }
@@ -530,11 +632,25 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         private bool Cropped { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is of type of <see cref="AudioVisualizationBars"/>.
+        /// </summary>
+        private bool IsBarVisualization { get; }
+
+        /// <summary>
         /// Crops the FFT (Fast Fourier Transformation) data from the highest peak values with a given minority percentage value.
         /// </summary>
-        /// <param name="steps">A size of a step while calculating downwards with the peak values.</param>
-        internal void CropFftWithMinorityPercentage(int steps = 1000)
+        internal void CropFftWithMinorityPercentage()
         {
+            if (IsBarVisualization)
+            {
+                if (MinorityCropOnBarLevel)
+                {
+                    return;
+                }
+            }
+
+            var steps = MinorityPercentageStepping;
+
             if (ValidData)
             {
                 try
@@ -750,6 +866,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                 if (ValidData)
                 {
                     CropFftWithMinorityPercentage();
+
                     for (int i = 0; i < DataFftLeft.Length; i += span)
                     {
                         List<double> sampleSpanLeft = new List<double>();
@@ -763,8 +880,36 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                         double weightLeft = sampleSpanLeft.Where(f => f > 0).Sum();
                         double weightRight = sampleSpanRight.Where(f => f > 0).Sum();
 
-                        resultLeft.Add(weightLeft / (sampleSpanLeft.Count > 0 ? sampleSpanLeft.Count : 1));
-                        resultRight.Add(weightRight / (sampleSpanRight.Count > 0 ? sampleSpanRight.Count : 1));
+                        resultLeft.Add(weightLeft / span);
+                        resultRight.Add(weightRight / span);
+                    }
+
+                    // extra cropping for bars..
+                    if (!Cropped && MinorityCropOnBarLevel)
+                    {
+                        var max = Math.Max(resultLeft.Max(), resultRight.Max());
+                        var count = resultLeft.Count;
+                        var step = max / MinorityPercentageStepping;
+
+                        while ((resultLeft.Count(f => f >= max) * 100 / count ) < MinorityCropPercentage)
+                        {
+                            max -= step;
+                        }
+
+                        for (int i = 0; i < resultLeft.Count; i++)
+                        {
+                            if (resultLeft[i] > max)
+                            {
+                                resultLeft[i] = max;
+                            }
+
+                            if (resultRight[i] > max)
+                            {
+                                resultRight[i] = max;
+                            }
+                        }
+
+                        Cropped = true;
                     }
 
                     double yScaleStepping = Math.Max(resultLeft.Max(), resultRight.Max()) / height;
