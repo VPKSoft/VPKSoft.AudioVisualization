@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
     <id>$id$</id>
@@ -7,12 +7,16 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <projectUrl>https://github.com/VPKSoft/VPKSoft.AudioVisualization</projectUrl>
-    <iconUrl>http://www.vpksoft.net/site/VPKSoft.ico</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Removed useless borders when the hertz labels are invisible.</releaseNotes>
-    <copyright>Copyright © VPKSoft 2019</copyright>
+    <releaseNotes>See: https://github.com/VPKSoft/VPKSoft.AudioVisualization/blob/master/VPKSoft.AudioVisualization/Changes.md</releaseNotes>
+    <copyright>Copyright © VPKSoft 2020</copyright>
     <tags>audio visualization spectrum analyze vpksoft winforms naudio</tags>
     <license type="expression">MIT</license>
+    <icon>vpksoft_logo.png</icon>
+    <iconUrl>https://www.vpksoft.net/site/VPKSoft.ico</iconUrl>
   </metadata>
+  <files>
+    <file src="vpksoft_logo.png" target="" />
+  </files>
 </package>
