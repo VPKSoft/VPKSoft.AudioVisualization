@@ -92,6 +92,7 @@
             this.Controls.Add(this.tlpMain);
             this.Name = "AudioVisualizationBars";
             this.Size = new System.Drawing.Size(700, 200);
+            this.SizeChanged += new System.EventHandler(this.AudioVisualizationBars_SizeChanged);
             this.tlpMain.ResumeLayout(false);
             this.ResumeLayout(false);
 

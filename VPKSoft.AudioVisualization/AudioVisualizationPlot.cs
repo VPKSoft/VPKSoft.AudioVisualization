@@ -143,6 +143,21 @@ namespace VPKSoft.AudioVisualization
         [Category("Appearance")]
         public bool UseAntiAliasing { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets the line draw mode of a line type graph.
+        /// </summary>
+        [Description("Gets or sets the line draw mode of a line type graph.")]
+        [Browsable(true)]
+        [Category("Appearance")]
+        public LineDrawMode LineDrawMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value that specifies the tension of the curve.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Gets or sets the value that specifies the tension of the curve.")]
+        public float LineCurveTension { get; set; } = 1;
+
         private bool combineChannels;
 
         /// <summary>
@@ -190,17 +205,35 @@ namespace VPKSoft.AudioVisualization
                 if (ValidData)
                 {
                     List<Point> linePoints = GetPoints(true, width, height);
+
                     using (var pen = new Pen(ColorAudioChannelLeft))
                     {
-                        e.Graphics.DrawLines(pen, linePoints.ToArray());
+                        if (LineDrawMode == LineDrawMode.Curve)
+                        {
+                            e.Graphics.DrawCurve(pen, linePoints.ToArray(), LineCurveTension);
+                        }
+                        
+                        if (LineDrawMode == LineDrawMode.Line)
+                        {
+                            e.Graphics.DrawLines(pen, linePoints.ToArray());
+                        }
                     }
 
                     if (CombineChannels)
                     {
-                        linePoints = GetPoints(false, width, height);
+                        linePoints =  GetPoints(true, width, height);
+
                         using (var pen = new Pen(ColorAudioChannelRight))
                         {
-                            e.Graphics.DrawLines(pen, linePoints.ToArray());
+                            if (LineDrawMode == LineDrawMode.Curve)
+                            {
+                                e.Graphics.DrawCurve(pen, linePoints.ToArray(), LineCurveTension);
+                            }
+                        
+                            if (LineDrawMode == LineDrawMode.Line)
+                            {
+                                e.Graphics.DrawLines(pen, linePoints.ToArray());
+                            }
                         }
                     }
                 }
@@ -235,10 +268,19 @@ namespace VPKSoft.AudioVisualization
 
                 if (ValidData)
                 {
-                    List<Point> linePoints = GetPoints(true, width, height);
+                    List<Point> linePoints = GetPoints(false, width, height);
+
                     using (var pen = new Pen(ColorAudioChannelRight))
                     {
-                        e.Graphics.DrawLines(pen, linePoints.ToArray());
+                        if (LineDrawMode == LineDrawMode.Curve)
+                        {
+                            e.Graphics.DrawCurve(pen, linePoints.ToArray(), LineCurveTension);
+                        }
+                        
+                        if (LineDrawMode == LineDrawMode.Line)
+                        {
+                            e.Graphics.DrawLines(pen, linePoints.ToArray());
+                        }
                     }
                 }
             }
@@ -255,6 +297,11 @@ namespace VPKSoft.AudioVisualization
             {
                 PaintHertzLabels((Panel) sender, e, pnLeft.Left, pnLeft.Right);
             }
+        }
+
+        private void AudioVisualizationPlot_SizeChanged(object sender, EventArgs e)
+        {
+            ResetRelativeView();
         }
     }
 }

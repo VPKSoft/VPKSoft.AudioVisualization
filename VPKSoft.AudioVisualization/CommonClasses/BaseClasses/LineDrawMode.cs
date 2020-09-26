@@ -2,7 +2,7 @@
 /*
 MIT License
 
-Copyright(c) 2019 Petteri Kautonen
+Copyright(c) 2020 Petteri Kautonen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,21 @@ SOFTWARE.
 */
 #endregion
 
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
+{
+    /// <summary>
+    /// The line draw mode of line audio graph.
+    /// </summary>
+    public enum LineDrawMode
+    {
+        /// <summary>
+        /// The line draw mode.
+        /// </summary>
+        Line,
 
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("43adbab3-2601-446e-a211-e5c9b4ddf878")]
+        /// <summary>
+        /// The curve draw mode.
+        /// </summary>
+        Curve
+    }
+}

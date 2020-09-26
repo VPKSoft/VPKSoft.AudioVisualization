@@ -2,7 +2,7 @@
 /*
 MIT License
 
-Copyright(c) 2019 Petteri Kautonen
+Copyright(c) 2020 Petteri Kautonen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ using System.Windows.Forms;
 using FftSharp;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using VPKSoft.DropOutStack;
 
 namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
 {
@@ -358,6 +359,14 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         public WindowType FftWindowType { get; set; } = WindowType.Hanning;
 
         /// <summary>
+        /// Gets the audio intensity which is considered as noise and is not visualized.
+        /// </summary>
+        [Description("Gets the audio intensity which is considered as noise and is not visualized.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public double NoiseTolerance { get; set; } = 1.0;
+
+        /// <summary>
         /// Gets a value indicating whether the MM audio device listening is started.
         /// </summary>
         [Browsable(false)]
@@ -476,6 +485,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         /// Gets or sets the custom FFT window function. <seealso cref="WindowType.Custom"/>.
         /// </summary>
         /// <value>The custom window function.</value>
+        [Browsable(false)]
         public Func<int, double[]> CustomWindowFunc { get; set; } = delegate(int points)
         {
             var result = new double[points];
@@ -490,11 +500,13 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         /// <summary>
         /// Gets or sets the PMC (Pulse Code Modulation) action for the left and for the right audio channel.
         /// </summary>
+        [Browsable(false)]
         private Action<double[], double[]> PmcAction { get; set; } = delegate {  };
 
         /// <summary>
         /// Gets or sets the action to performed for the audio data after the FFT windowing.
         /// </summary>
+        [Browsable(false)]
         private Action<double[], double[]> FftAfterAction { get; set; } = delegate {  };
 
 
@@ -691,6 +703,32 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             }
         }
 
+        private DropOutStack<(double peak, DateTime time)> FftPeakPerSecond { get; } = new DropOutStack<(double peak, DateTime time)>(500);
+
+        /// <summary>
+        /// Gets the FFT data maximum intensity.
+        /// </summary>
+        /// <value>The data FFT data maximum intensity.</value>
+        internal double DataFftMax
+        {
+            get
+            {
+                var current = ValidData ? Math.Max(DataFftLeft.Max(), DataFftRight.Max()) : 0;
+                FftPeakPerSecond.Push((current, DateTime.Now));
+
+                if (FftPeakPerSecond.Count == 0)
+                {
+                    return 0;
+                }
+
+                var time = FftPeakPerSecond.Min(f => f.time);
+
+                var divisor = (DateTime.Now - time).TotalSeconds;
+
+                return divisor != 0 ? FftPeakPerSecond.Average(f => f.peak) / divisor : 0;
+            }
+        }
+
         /// <summary>
         /// Gets the FFT (Fast Fourier Transformation) data as a list of points.
         /// </summary>
@@ -707,12 +745,55 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                 {
                     CropFftWithMinorityPercentage();
                     double xScaleStepping = width / DataFftRight.Length;
-                    double yScaleStepping = height / DataFftRight.Max();
+                    double yScaleStepping = height / Math.Max(DataFftRight.Max(), DataFftLeft.Max());
                     var data = left ? DataFftLeft : DataFftRight;
                     for (int i = 0; i < data.Length; i++)
                     {
                         int x = (int) (i * xScaleStepping);
                         int y = (int) (data[i] * yScaleStepping);
+                        y = (int) height - y;
+                        if (y < 0)
+                        {
+                            y = 0;
+                        }
+
+                        linePoints.Add(new Point(x, y));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // report the exception..
+                ExceptionLogAction?.Invoke(ex);
+            }
+
+            return linePoints;
+        }
+
+        /// <summary>
+        /// Gets the FFT (Fast Fourier Transformation) data as a list of points weighted with the point amount.
+        /// </summary>
+        /// <param name="left">A value indicating whether to use the left or the right channel.</param>
+        /// <param name="width">The width to adjust the point to.</param>
+        /// <param name="height">The height to adjust the point to.</param>
+        /// <returns>A list of points representing the FFT (Fast Fourier Transformation) data.</returns>
+        internal List<Point> GetPointsWeighted(bool left, double width, double height)
+        {
+            List<Point> linePoints = new List<Point>();
+            try
+            {
+                if (ValidData)
+                {
+                    CropFftWithMinorityPercentage();
+
+                    var values = CreateWeightedFftArray((int)width, (int)height);
+
+                    double xScaleStepping = width / values.left.Count;
+                    var data = left ? values.left : values.right;
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        int x = (int) (i * xScaleStepping);
+                        int y = (int) (data[i]);
                         y = (int) height - y;
                         if (y < 0)
                         {
@@ -855,26 +936,175 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             Refresh();
         }
 
-        internal (List<double> left, List<double> right) CreateWeightedFftArray(int hertzSpan, int height)
+        internal List<double> SpanMultipliersRight { get; private set; } = new List<double>();
+
+        internal List<double> SpanMultipliersLeft { get; private set; } = new List<double>();
+
+        internal double SpanMin { get; private set; }
+
+        internal double SpanMax { get; private set; }
+
+        /// <summary>
+        /// Resets the relative view in case the <see cref="AudioVisualizationBars.RelativeView"/> property is set. This is good to call when the playing song has been changed.
+        /// </summary>
+        public void ResetRelativeView()
         {
-            List<double> resultLeft = new List<double>();
-            List<double> resultRight = new List<double>();
+            SpanMultipliersLeft = new List<double>();
+            SpanMultipliersRight = new List<double>();
+            SpanMax = 0;
+            SpanMin = 0;
+        }
+
+        /// <summary>
+        /// Applies the span multiplier in case the <see cref="AudioVisualizationBars.RelativeView"/> is set.
+        /// </summary>
+        /// <param name="values">The values to modify with the relative multiplier.</param>
+        /// <param name="left">A value indicating whether the left channel is in question.</param>
+        internal void ApplySpanMultiplier(List<double> values, bool left)
+        {
+            if (this is AudioVisualizationBars)
+            {
+                if (!((AudioVisualizationBars)(this)).RelativeView)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+
+            var arraySize = Math.Min(values.Count, left ? SpanMultipliersLeft.Count : SpanMultipliersRight.Count);
+            for (int i = 0; i < arraySize; i++)
+            {
+                values[i] *= left ? SpanMultipliersLeft[i] : SpanMultipliersRight[i];
+            }
+        }
+
+        /// <summary>
+        /// Updates the <see cref="SpanMultipliersLeft"/> and <see cref="SpanMultipliersRight"/> property values in case the <see cref="AudioVisualizationBars.RelativeView"/> is set.
+        /// </summary>
+        /// <param name="left">The left channel FFT audio data.</param>
+        /// <param name="right">The right channel FFT audio data.</param>
+        private void UpdateSpanMinMax(IReadOnlyList<double> left, IReadOnlyList<double> right)
+        {
             try
             {
-                int span = DataFftLeft.Length / hertzSpan;
+                if (this is AudioVisualizationBars)
+                {
+                    if (!((AudioVisualizationBars)(this)).RelativeView)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+
+                var max = Math.Max(left.Max(), right.Max());
+                var min = Math.Min(left.Min(), right.Min());
+                var spanMinLeft = new List<double>(new double [left.Count]);
+                var spanMaxLeft = new List<double>(new double [left.Count]);
+                var spanMinRight = new List<double>(new double [left.Count]);
+                var spanMaxRight = new List<double>(new double [left.Count]);
+
+                if (max > SpanMax)
+                {
+                    SpanMax = max;
+                }
+
+                if (min < SpanMin)
+                {
+                    SpanMin = min;
+                }
+
+                if (SpanMultipliersLeft.Count != left.Count)
+                {
+                    SpanMultipliersLeft = new List<double>(new double [left.Count]);
+                    SpanMultipliersRight = new List<double>(new double [left.Count]);
+                    for (int i = 0; i < SpanMultipliersLeft.Count; i++)
+                    {
+                        SpanMultipliersLeft[i] = double.MaxValue;
+                        SpanMultipliersRight[i] = double.MaxValue;
+                    }
+                }
+
+                for (int i = 0; i < spanMaxLeft.Count; i++)
+                {
+                    if (left[i] > spanMaxLeft[i])
+                    {
+                        spanMaxLeft[i] = left[i];
+                    }
+
+                    if (right[i] > spanMaxRight[i])
+                    {
+                        spanMaxRight[i] = right[i];
+                    }
+
+                    if (left[i] < spanMinLeft[i])
+                    {
+                        spanMinLeft[i] = left[i];
+                    }
+
+                    if (right[i] < spanMinRight[i])
+                    {
+                        spanMinRight[i] = right[i];
+                    }
+                }
+
+                for (int i = 0; i < spanMaxLeft.Count; i++)
+                {
+                    var multiplier = (SpanMax - SpanMin) / (spanMaxLeft[i] - spanMinLeft[i]);
+                    if (multiplier < SpanMultipliersLeft[i])
+                    {
+                        SpanMultipliersLeft[i] = multiplier;
+                    }
+
+                    multiplier = (SpanMax - SpanMin) / (spanMaxRight[i] - spanMinRight[i]);
+                    if (multiplier < SpanMultipliersRight[i])
+                    {
+                        SpanMultipliersRight[i] = multiplier;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogAction?.Invoke(ex);
+            }
+        }
+
+        internal (List<double> left, List<double> right) CreateWeightedFftArray(int hertzSpan, int height)
+        {
+
+            List<double> resultLeft = new List<double>();
+            List<double> resultRight = new List<double>();
+
+            if (DataFftMax < NoiseTolerance)
+            {
+                return (resultLeft, resultRight);
+            }
+
+            try
+            {
+                double span = (double)DataFftLeft.Length / hertzSpan;
+                if (span <= 0)
+                {
+                    return (resultLeft, resultRight);
+                }
 
                 if (ValidData)
                 {
                     CropFftWithMinorityPercentage();
 
-                    for (int i = 0; i < DataFftLeft.Length; i += span)
+                    for (double i = 0; i < DataFftLeft.Length; i += span)
                     {
                         List<double> sampleSpanLeft = new List<double>();
                         List<double> sampleSpanRight = new List<double>();
-                        for (int j = i; j < i + span && j < DataFftLeft.Length; j++)
+                        for (double j = i; j < i + span && j < DataFftLeft.Length; j++)
                         {
-                            sampleSpanLeft.Add(DataFftLeft[j]);
-                            sampleSpanRight.Add(DataFftRight[j]);
+                            sampleSpanLeft.Add(DataFftLeft[(int)j]);
+                            sampleSpanRight.Add(DataFftRight[(int)j]);
                         }
 
                         double weightLeft = sampleSpanLeft.Where(f => f > 0).Sum();
@@ -919,6 +1149,8 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                         resultRight[i] = resultRight[i] / yScaleStepping;
                     }
                 }
+
+                UpdateSpanMinMax(resultLeft, resultRight);
 
                 return (resultLeft, resultRight);
             }

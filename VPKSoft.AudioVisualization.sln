@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPKSoft.AudioVisualization", "VPKSoft.AudioVisualization\VPKSoft.AudioVisualization.csproj", "{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VPKSoft.AudioVisualization", "VPKSoft.AudioVisualization\VPKSoft.AudioVisualization.csproj", "{2CB1C623-8DAE-4DAF-A65B-1C59E090B23A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "TestApplication\TestApplication.csproj", "{43ADBAB3-2601-446E-A211-E5C9B4DDF878}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApplication", "TestApplication\TestApplication.csproj", "{43ADBAB3-2601-446E-A211-E5C9B4DDF878}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

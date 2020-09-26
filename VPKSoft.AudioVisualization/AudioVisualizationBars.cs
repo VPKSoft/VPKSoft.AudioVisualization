@@ -209,6 +209,14 @@ namespace VPKSoft.AudioVisualization
         public Color ColorGradientRightEnd { get; set; } = Color.DarkGreen;
 
         /// <summary>
+        /// Gets or sets the value whether the some types of graphs (i. e. bar graph) are drawn relative to minimum and maximum value of the audio peak range.
+        /// </summary>
+        [Description("Gets or sets the value whether the some types of graphs (i. e. bar graph) are drawn relative to minimum and maximum value of the audio peak range.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public bool RelativeView { get; set; }
+
+        /// <summary>
         /// Creates a brush based on the given parameters.
         /// </summary>
         /// <param name="left">if set to <c>true</c> the left channel's brush is requested.</param>
@@ -261,6 +269,8 @@ namespace VPKSoft.AudioVisualization
 
                         var values = left || CombineChannels ? barValues.left : barValues.right;
 
+
+                        ApplySpanMultiplier(values, left);
 
                         for (int i = 0; i < values.Count; i++)
                         {
@@ -323,6 +333,11 @@ namespace VPKSoft.AudioVisualization
             }
 
             DrawBars(false, e);
+        }
+
+        private void AudioVisualizationBars_SizeChanged(object sender, EventArgs e)
+        {
+            ResetRelativeView();
         }
     }
 }

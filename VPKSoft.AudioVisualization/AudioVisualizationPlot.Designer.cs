@@ -92,6 +92,7 @@
             this.Controls.Add(this.tlpMain);
             this.Name = "AudioVisualizationPlot";
             this.Size = new System.Drawing.Size(700, 200);
+            this.SizeChanged += new System.EventHandler(this.AudioVisualizationPlot_SizeChanged);
             this.tlpMain.ResumeLayout(false);
             this.ResumeLayout(false);
 

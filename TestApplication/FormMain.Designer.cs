@@ -33,13 +33,13 @@
             this.cbCombineChannels = new System.Windows.Forms.CheckBox();
             this.btStartStopBars = new System.Windows.Forms.Button();
             this.tlpGraphs = new System.Windows.Forms.TableLayoutPanel();
+            this.audioVisualizationPlot1 = new VPKSoft.AudioVisualization.AudioVisualizationPlot();
+            this.audioVisualizationBars1 = new VPKSoft.AudioVisualization.AudioVisualizationBars();
             this.gbGrapsh = new System.Windows.Forms.GroupBox();
             this.rbBars = new System.Windows.Forms.RadioButton();
             this.rbCurve = new System.Windows.Forms.RadioButton();
             this.rbBoth = new System.Windows.Forms.RadioButton();
             this.cbUseGradientWithBars = new System.Windows.Forms.CheckBox();
-            this.audioVisualizationPlot1 = new VPKSoft.AudioVisualization.AudioVisualizationPlot();
-            this.audioVisualizationBars1 = new VPKSoft.AudioVisualization.AudioVisualizationBars();
             this.lbFftWindowingStyle = new System.Windows.Forms.Label();
             this.cmbFftWindowingStyle = new System.Windows.Forms.ComboBox();
             this.cbBarLevelCropping = new System.Windows.Forms.CheckBox();
@@ -101,6 +101,54 @@
             this.tlpGraphs.Size = new System.Drawing.Size(776, 409);
             this.tlpGraphs.TabIndex = 6;
             // 
+            // audioVisualizationPlot1
+            // 
+            this.audioVisualizationPlot1.ColorAudioChannelLeft = System.Drawing.Color.Aqua;
+            this.audioVisualizationPlot1.ColorAudioChannelRight = System.Drawing.Color.LimeGreen;
+            this.audioVisualizationPlot1.ColorHertzLabels = System.Drawing.Color.Magenta;
+            this.audioVisualizationPlot1.CombineChannels = false;
+            this.audioVisualizationPlot1.CustomWindowFunc = ((System.Func<int, double[]>)(resources.GetObject("audioVisualizationPlot1.CustomWindowFunc")));
+            this.audioVisualizationPlot1.DisplayHertzLabels = true;
+            this.audioVisualizationPlot1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.audioVisualizationPlot1.FftWindowType = VPKSoft.AudioVisualization.WindowType.Hanning;
+            this.audioVisualizationPlot1.Location = new System.Drawing.Point(3, 3);
+            this.audioVisualizationPlot1.MinorityCropOnBarLevel = false;
+            this.audioVisualizationPlot1.MinorityCropPercentage = 3;
+            this.audioVisualizationPlot1.MinorityPercentageStepping = 1000;
+            this.audioVisualizationPlot1.Name = "audioVisualizationPlot1";
+            this.audioVisualizationPlot1.NoiseTolerance = 1D;
+            this.audioVisualizationPlot1.RefreshRate = 30;
+            this.audioVisualizationPlot1.Size = new System.Drawing.Size(770, 198);
+            this.audioVisualizationPlot1.TabIndex = 0;
+            this.audioVisualizationPlot1.UseAntiAliasing = true;
+            // 
+            // audioVisualizationBars1
+            // 
+            this.audioVisualizationBars1.ColorAudioChannelLeft = System.Drawing.Color.Aqua;
+            this.audioVisualizationBars1.ColorAudioChannelRight = System.Drawing.Color.LimeGreen;
+            this.audioVisualizationBars1.ColorGradientLeftEnd = System.Drawing.Color.DarkGreen;
+            this.audioVisualizationBars1.ColorGradientLeftStart = System.Drawing.Color.SpringGreen;
+            this.audioVisualizationBars1.ColorGradientRightEnd = System.Drawing.Color.MidnightBlue;
+            this.audioVisualizationBars1.ColorGradientRightStart = System.Drawing.Color.LightSteelBlue;
+            this.audioVisualizationBars1.ColorHertzLabels = System.Drawing.Color.Magenta;
+            this.audioVisualizationBars1.CombineChannels = false;
+            this.audioVisualizationBars1.CustomWindowFunc = ((System.Func<int, double[]>)(resources.GetObject("audioVisualizationBars1.CustomWindowFunc")));
+            this.audioVisualizationBars1.DisplayHertzLabels = true;
+            this.audioVisualizationBars1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.audioVisualizationBars1.DrawWithGradient = false;
+            this.audioVisualizationBars1.FftWindowType = VPKSoft.AudioVisualization.WindowType.Hanning;
+            this.audioVisualizationBars1.HertzSpan = 128;
+            this.audioVisualizationBars1.Location = new System.Drawing.Point(3, 207);
+            this.audioVisualizationBars1.MinorityCropOnBarLevel = false;
+            this.audioVisualizationBars1.MinorityCropPercentage = 3;
+            this.audioVisualizationBars1.MinorityPercentageStepping = 1000;
+            this.audioVisualizationBars1.Name = "audioVisualizationBars1";
+            this.audioVisualizationBars1.NoiseTolerance = 1D;
+            this.audioVisualizationBars1.RefreshRate = 30;
+            this.audioVisualizationBars1.RelativeView = true;
+            this.audioVisualizationBars1.Size = new System.Drawing.Size(770, 199);
+            this.audioVisualizationBars1.TabIndex = 5;
+            // 
             // gbGrapsh
             // 
             this.gbGrapsh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -160,43 +208,6 @@
             this.cbUseGradientWithBars.Text = "Use gradient colors with bars";
             this.cbUseGradientWithBars.UseVisualStyleBackColor = true;
             this.cbUseGradientWithBars.CheckedChanged += new System.EventHandler(this.CbUseGradientWithBars_CheckedChanged);
-            // 
-            // audioVisualizationPlot1
-            // 
-            this.audioVisualizationPlot1.ColorAudioChannelLeft = System.Drawing.Color.Aqua;
-            this.audioVisualizationPlot1.ColorAudioChannelRight = System.Drawing.Color.LimeGreen;
-            this.audioVisualizationPlot1.ColorHertzLabels = System.Drawing.Color.Magenta;
-            this.audioVisualizationPlot1.CombineChannels = false;
-            this.audioVisualizationPlot1.DisplayHertzLabels = true;
-            this.audioVisualizationPlot1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.audioVisualizationPlot1.Location = new System.Drawing.Point(3, 3);
-            this.audioVisualizationPlot1.MinorityCropPercentage = 3;
-            this.audioVisualizationPlot1.Name = "audioVisualizationPlot1";
-            this.audioVisualizationPlot1.RefreshRate = 30;
-            this.audioVisualizationPlot1.Size = new System.Drawing.Size(770, 198);
-            this.audioVisualizationPlot1.TabIndex = 0;
-            this.audioVisualizationPlot1.UseAntiAliasing = true;
-            // 
-            // audioVisualizationBars1
-            // 
-            this.audioVisualizationBars1.ColorAudioChannelLeft = System.Drawing.Color.Aqua;
-            this.audioVisualizationBars1.ColorAudioChannelRight = System.Drawing.Color.LimeGreen;
-            this.audioVisualizationBars1.ColorGradientLeftEnd = System.Drawing.Color.DarkGreen;
-            this.audioVisualizationBars1.ColorGradientLeftStart = System.Drawing.Color.SpringGreen;
-            this.audioVisualizationBars1.ColorGradientRightEnd = System.Drawing.Color.MidnightBlue;
-            this.audioVisualizationBars1.ColorGradientRightStart = System.Drawing.Color.LightSteelBlue;
-            this.audioVisualizationBars1.ColorHertzLabels = System.Drawing.Color.Magenta;
-            this.audioVisualizationBars1.CombineChannels = false;
-            this.audioVisualizationBars1.DisplayHertzLabels = true;
-            this.audioVisualizationBars1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.audioVisualizationBars1.DrawWithGradient = false;
-            this.audioVisualizationBars1.HertzSpan = 128;
-            this.audioVisualizationBars1.Location = new System.Drawing.Point(3, 207);
-            this.audioVisualizationBars1.MinorityCropPercentage = 3;
-            this.audioVisualizationBars1.Name = "audioVisualizationBars1";
-            this.audioVisualizationBars1.RefreshRate = 30;
-            this.audioVisualizationBars1.Size = new System.Drawing.Size(770, 199);
-            this.audioVisualizationBars1.TabIndex = 5;
             // 
             // lbFftWindowingStyle
             // 
