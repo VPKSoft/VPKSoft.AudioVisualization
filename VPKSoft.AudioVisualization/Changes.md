@@ -17,3 +17,4 @@
    - *RelativeView to AudioVisualizationBars*
    - *NoiseTolerance to base class*
  * Bug fixes.
+ * New project format.
