@@ -87,6 +87,13 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         internal int HertzLabelsHeight { get; set; } = 21;
 
         /// <summary>
+        /// Gets or sets the adjustment on the volume multipliers in case the <see cref="AudioVisualizationBars.RelativeView"/> is set.
+        /// Set this value to 1 to disable the feature.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming, the inherited class uses this as a base for a property..
+        internal double relativeViewTimeAdjust = 1.001;
+
+        /// <summary>
         /// Handles the PropertyChanged event of the AudioVisualizationBase control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -936,9 +943,42 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             Refresh();
         }
 
-        internal List<double> SpanMultipliersRight { get; private set; } = new List<double>();
+        /// <summary>
+        /// A class to store volume channel multiplier data on the <see cref="AudioVisualizationBars.RelativeView"/> mode.
+        /// </summary>
+        internal class SpanMultiplierData
+        {
+            // a field for the SpanMultiplier property..
 
-        internal List<double> SpanMultipliersLeft { get; private set; } = new List<double>();
+            /// <summary>
+            /// Gets or sets the span multiplier.
+            /// </summary>
+            /// <value>The span multiplier.</value>
+            internal double SpanMultiplier { get; set; } = double.MaxValue;
+
+            internal static List<SpanMultiplierData> InstanceList(int capacity)
+            {
+                var result = new List<SpanMultiplierData>();
+                for (int i = 0; i < capacity; i++)
+                {
+                    result.Add(new SpanMultiplierData());
+                }
+
+                return result;
+            }
+
+            internal void Adjust(double upMultiplier, double newValue)
+            {
+                var newMultiplier = SpanMultiplier * upMultiplier;
+                newMultiplier = newMultiplier > newValue ? newValue : newMultiplier;
+
+                SpanMultiplier = newMultiplier;
+            }
+        }
+
+        internal List<SpanMultiplierData> SpanMultipliersRight { get; private set; } = new List<SpanMultiplierData>();
+
+        internal List<SpanMultiplierData> SpanMultipliersLeft { get; private set; } = new List<SpanMultiplierData>();
 
         internal double SpanMin { get; private set; }
 
@@ -949,8 +989,8 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
         /// </summary>
         public void ResetRelativeView()
         {
-            SpanMultipliersLeft = new List<double>();
-            SpanMultipliersRight = new List<double>();
+            SpanMultipliersLeft = new List<SpanMultiplierData>();
+            SpanMultipliersRight = new List<SpanMultiplierData>();
             SpanMax = 0;
             SpanMin = 0;
         }
@@ -977,7 +1017,7 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
             var arraySize = Math.Min(values.Count, left ? SpanMultipliersLeft.Count : SpanMultipliersRight.Count);
             for (int i = 0; i < arraySize; i++)
             {
-                values[i] *= left ? SpanMultipliersLeft[i] : SpanMultipliersRight[i];
+                values[i] *= left ? SpanMultipliersLeft[i].SpanMultiplier : SpanMultipliersRight[i].SpanMultiplier;
             }
         }
 
@@ -1021,13 +1061,8 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
 
                 if (SpanMultipliersLeft.Count != left.Count)
                 {
-                    SpanMultipliersLeft = new List<double>(new double [left.Count]);
-                    SpanMultipliersRight = new List<double>(new double [left.Count]);
-                    for (int i = 0; i < SpanMultipliersLeft.Count; i++)
-                    {
-                        SpanMultipliersLeft[i] = double.MaxValue;
-                        SpanMultipliersRight[i] = double.MaxValue;
-                    }
+                    SpanMultipliersLeft = SpanMultiplierData.InstanceList(left.Count);
+                    SpanMultipliersRight = SpanMultiplierData.InstanceList(left.Count);
                 }
 
                 for (int i = 0; i < spanMaxLeft.Count; i++)
@@ -1056,16 +1091,11 @@ namespace VPKSoft.AudioVisualization.CommonClasses.BaseClasses
                 for (int i = 0; i < spanMaxLeft.Count; i++)
                 {
                     var multiplier = (SpanMax - SpanMin) / (spanMaxLeft[i] - spanMinLeft[i]);
-                    if (multiplier < SpanMultipliersLeft[i])
-                    {
-                        SpanMultipliersLeft[i] = multiplier;
-                    }
+
+                    SpanMultipliersLeft[i].Adjust(relativeViewTimeAdjust, multiplier);
 
                     multiplier = (SpanMax - SpanMin) / (spanMaxRight[i] - spanMinRight[i]);
-                    if (multiplier < SpanMultipliersRight[i])
-                    {
-                        SpanMultipliersRight[i] = multiplier;
-                    }
+                    SpanMultipliersRight[i].Adjust(relativeViewTimeAdjust, multiplier);
                 }
             }
             catch (Exception ex)

@@ -58,7 +58,7 @@
     </Compile>
     <None Include="vpksoft_logo.png">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath />
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@
 /*
 MIT License
 
-Copyright(c) 2019 Petteri Kautonen
+Copyright(c) 2020 Petteri Kautonen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -215,6 +215,27 @@ namespace VPKSoft.AudioVisualization
         [Browsable(true)]
         [Category("Behaviour")]
         public bool RelativeView { get; set; }
+
+        /// <summary>
+        /// Gets or sets the adjustment on the volume multipliers in case the <see cref="RelativeView"/> is set.
+        /// Set this value to 1 to disable the feature.
+        /// </summary>
+        [Description("Gets or sets the adjustment on the volume multipliers in case the RelativeView is set.")]
+        [Browsable(true)]
+        [Category("Behaviour")]
+        public double RelativeViewTimeAdjust
+        {
+            get => relativeViewTimeAdjust;
+            set
+            {
+                if (value < 1)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(RelativeViewTimeAdjust),
+                        @"The value must be equal or greater than 1.");
+                }
+                relativeViewTimeAdjust = value;
+            }
+        }
 
         /// <summary>
         /// Creates a brush based on the given parameters.

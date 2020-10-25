@@ -12,7 +12,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DocumentationFile>bin\$(Configuration)\VPKSoft.AudioVisualization.xml</DocumentationFile>
     <Authors>VPKSoft</Authors>
-    <PackageIconUrl></PackageIconUrl>
+    <PackageIconUrl />
     <PackageProjectUrl>https://github.com/VPKSoft/VPKSoft.AudioVisualization</PackageProjectUrl>
     <PackageReleaseNotes>See: https://github.com/VPKSoft/VPKSoft.AudioVisualization/blob/master/VPKSoft.AudioVisualization/Changes.md</PackageReleaseNotes>
     <PackageTags>audio visualization spectrum analyze vpksoft winforms naudio</PackageTags>
@@ -73,7 +73,7 @@
     <None Include="Changes.md" />
     <None Include="vpksoft_logo.png">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath />
     </None>
   </ItemGroup>
 </Project>
