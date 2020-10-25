@@ -7,7 +7,7 @@
     <Company>VPKSoft</Company>
     <Product>TestApplication</Product>
     <Description>A test application for the VPKSoft.AudioVisualization class library.</Description>
-    <Copyright>Copyright © VPKSoft 2019</Copyright>
+    <Copyright>Copyright © VPKSoft 2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/VPKSoft/VPKSoft.AudioVisualization</PackageProjectUrl>
