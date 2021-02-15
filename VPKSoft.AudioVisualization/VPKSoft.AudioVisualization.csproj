@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net47</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net5.0-windows;net472</TargetFrameworks>
     <AssemblyTitle>VPKSoft.AudioVisualization</AssemblyTitle>
     <Company>VPKSoft</Company>
     <Product>VPKSoft.AudioVisualization</Product>
     <Description>A spectrum analyzer library for Windows Forms.</Description>
-    <Copyright>Copyright © VPKSoft 2020</Copyright>
-    <Version>1.0.6</Version>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
-    <FileVersion>1.0.6.0</FileVersion>
+    <Copyright>Copyright © VPKSoft 2021</Copyright>
+    <Version>1.0.7</Version>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
+    <FileVersion>1.0.7.0</FileVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DocumentationFile>bin\$(Configuration)\VPKSoft.AudioVisualization.xml</DocumentationFile>
     <Authors>VPKSoft</Authors>
@@ -22,6 +22,7 @@
     <RepositoryUrl>https://github.com/VPKSoft/VPKSoft.AudioVisualization</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -30,15 +31,15 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FftSharp" Version="1.0.5" />
-    <PackageReference Include="Fody" Version="6.2.0">
+    <PackageReference Include="FftSharp" Version="1.0.8" />
+    <PackageReference Include="Fody" Version="6.3.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NAudio" Version="1.10.0" />
-    <PackageReference Include="PropertyChanged.Fody" Version="3.2.8" />
+    <PackageReference Include="NAudio" Version="2.0.0" />
+    <PackageReference Include="PropertyChanged.Fody" Version="3.3.1" />
     <PackageReference Include="VPKSoft.DropOutStack" Version="1.0.0" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
